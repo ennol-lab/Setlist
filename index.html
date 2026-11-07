@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Setlist">
+<meta name="theme-color" content="#111214">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<title>Setlist</title>
+<style>
+:root{
+  --bg:#111214; --panel:#1b1c20; --panel2:#24262b; --line:#2f3238;
+  --text:#ecebe6; --muted:#8d9099; --accent:#e8a33d; --accent-ink:#1a1306; --danger:#e5554f;
+  --r:14px;
+  --st:env(safe-area-inset-top,0px); --sb:env(safe-area-inset-bottom,0px);
+  --sl:env(safe-area-inset-left,0px); --sr:env(safe-area-inset-right,0px);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--text);
+  font:16px/1.4 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;
+  -webkit-text-size-adjust:100%;overscroll-behavior:none}
+button,input{font:inherit;color:inherit}
+button{background:none;border:0;padding:0;cursor:pointer;touch-action:manipulation}
+[hidden]{display:none!important}
+
+/* ---------- Layout ---------- */
+#app{min-height:100%;display:flex;flex-direction:column}
+header.top{position:sticky;top:0;z-index:5;background:rgba(17,18,20,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  padding:calc(var(--st) + 10px) calc(var(--sr) + 16px) 10px calc(var(--sl) + 16px);border-bottom:1px solid var(--line)}
+.row{display:flex;align-items:center;gap:10px}
+.grow{flex:1;min-width:0}
+h1{font-size:28px;margin:0;font-weight:700;letter-spacing:-.02em}
+main{flex:1;padding:12px calc(var(--sr) + 16px) calc(var(--sb) + 96px) calc(var(--sl) + 16px);max-width:820px;width:100%;margin:0 auto}
+
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;display:flex;justify-content:center;gap:8px;
+  padding:8px 16px calc(var(--sb) + 8px);background:rgba(17,18,20,.94);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--line)}
+nav.tabs button{flex:1;max-width:220px;padding:10px;border-radius:12px;color:var(--muted);font-weight:600}
+nav.tabs button.on{background:var(--panel2);color:var(--text)}
+
+/* ---------- Controls ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:0 16px;border-radius:12px;background:var(--panel2);font-weight:600;white-space:nowrap}
+.btn.primary{background:var(--accent);color:var(--accent-ink)}
+.btn.danger{color:var(--danger)}
+.btn.icon{width:44px;padding:0;font-size:20px}
+.btn:active{opacity:.7}
+.search{width:100%;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--panel);padding:0 14px;outline:none}
+.search:focus{border-color:var(--accent)}
+.textin{width:100%;height:48px;border-radius:12px;border:1px solid var(--line);background:var(--panel);padding:0 14px;outline:none;font-size:17px}
+.textin:focus{border-color:var(--accent)}
+
+/* ---------- Lists ---------- */
+.list{list-style:none;margin:12px 0 0;padding:0;background:var(--panel);border-radius:var(--r);overflow:hidden}
+.list li{display:flex;align-items:center;gap:12px;padding:0 8px 0 16px;min-height:58px;border-bottom:1px solid var(--line)}
+.list li:last-child{border-bottom:0}
+.list li .main{flex:1;min-width:0;padding:10px 0;text-align:left}
+.list .t{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.list .s{font-size:13px;color:var(--muted)}
+.list .num{width:28px;color:var(--muted);font-variant-numeric:tabular-nums;text-align:right;flex:none}
+.handle{width:40px;height:44px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:20px;touch-action:none;cursor:grab;flex:none}
+.sortable-ghost{opacity:.35}
+.sortable-chosen{background:var(--panel2)}
+.empty{text-align:center;color:var(--muted);padding:48px 20px}
+.empty b{display:block;color:var(--text);font-size:18px;margin-bottom:6px}
+.check{color:var(--accent);font-weight:700;min-width:28px;text-align:center}
+.section-label{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:22px 4px 0}
+
+/* ---------- Modal ---------- */
+.modal-bg{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.55);display:flex;align-items:flex-end;justify-content:center;animation:fade .15s}
+.sheet{width:100%;max-width:560px;max-height:88vh;display:flex;flex-direction:column;background:var(--panel);border-radius:20px 20px 0 0;
+  padding:18px calc(var(--sr) + 18px) calc(var(--sb) + 18px) calc(var(--sl) + 18px);animation:up .2s ease-out}
+@media (min-width:700px){.modal-bg{align-items:center}.sheet{border-radius:20px}}
+.sheet h2{margin:0 0 4px;font-size:20px}
+.sheet p{margin:4px 0 0;color:var(--muted)}
+.sheet .actions{display:flex;flex-direction:column;gap:8px;margin-top:16px}
+.sheet .actions.h{flex-direction:row}
+.sheet .actions.h .btn{flex:1}
+.sheet .scroll{overflow:auto;margin:12px -18px 0;padding:0 18px;-webkit-overflow-scrolling:touch}
+@keyframes up{from{transform:translateY(30px);opacity:0}}
+@keyframes fade{from{opacity:0}}
+
+#toast{position:fixed;left:50%;bottom:calc(var(--sb) + 90px);transform:translateX(-50%);z-index:80;background:#2d3036;color:var(--text);
+  padding:10px 18px;border-radius:999px;font-weight:600;font-size:15px;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90vw;text-align:center}
+#toast.on{opacity:1}
+
+/* ---------- Performance mode ---------- */
+#perf{position:fixed;inset:0;z-index:40;background:#fff;user-select:none;-webkit-user-select:none;touch-action:manipulation;overflow:hidden}
+#perf.dark{background:#000}
+#stage{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+#stage canvas{display:block;max-width:100%;max-height:100%}
+#perf.dark #stage canvas{filter:invert(1) hue-rotate(180deg)}
+#flash{position:absolute;right:calc(var(--sr) + 12px);bottom:calc(var(--sb) + 12px);background:rgba(20,20,22,.82);color:#fff;
+  padding:8px 14px;border-radius:12px;font-size:14px;font-weight:600;opacity:0;transition:opacity .4s;pointer-events:none;max-width:70vw}
+#flash.on{opacity:1}
+#flash .n{color:var(--accent)}
+#hud{position:absolute;inset:0;pointer-events:none}
+#hud .bar{pointer-events:auto;position:absolute;left:0;right:0;top:0;background:rgba(17,18,20,.94);color:var(--text);
+  padding:calc(var(--st) + 10px) calc(var(--sr) + 14px) 10px calc(var(--sl) + 14px);display:flex;align-items:center;gap:10px;box-shadow:0 4px 20px rgba(0,0,0,.3)}
+#hud .info{flex:1;min-width:0}
+#hud .info .t{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#hud .info .s{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#hud .jump{pointer-events:auto;position:absolute;top:calc(var(--st) + 72px);right:calc(var(--sr) + 10px);width:min(360px,calc(100vw - 20px));
+  max-height:calc(100% - var(--st) - var(--sb) - 90px);overflow:auto;background:var(--panel);border-radius:var(--r);box-shadow:0 10px 40px rgba(0,0,0,.5)}
+#hud .jump li.cur{background:var(--panel2)}
+#hud .jump li.cur .t{color:var(--accent)}
+#loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#888;font-size:15px;pointer-events:none}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<div id="perf" hidden>
+  <div id="stage"></div>
+  <div id="loading" hidden>Lade …</div>
+  <div id="flash"></div>
+  <div id="hud" hidden>
+    <div class="bar">
+      <button class="btn" id="hud-exit">Beenden</button>
+      <div class="info"><div class="t" id="hud-title"></div><div class="s" id="hud-sub"></div></div>
+      <button class="btn" id="hud-dark">Nacht</button>
+      <button class="btn" id="hud-list">Liste</button>
+    </div>
+    <ul class="list jump" id="hud-jump" hidden></ul>
+  </div>
+</div>
+
+<div id="modal-root"></div>
+<div id="toast"></div>
+<input type="file" id="file-pdf" accept="application/pdf,.pdf" multiple hidden>
+<input type="file" id="file-replace" accept="application/pdf,.pdf" hidden>
+<input type="file" id="file-backup" accept="application/json,.json" hidden>
+
+<script src="lib/pdf.min.js"></script>
+<script src="lib/Sortable.min.js"></script>
+<script>
+'use strict';
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'lib/pdf.worker.min.js';
+
+/* =====================================================================
+   Speicher (IndexedDB)
+   songs:    {id, name, pages, added}
+   files:    {id, data: ArrayBuffer}   (gleiche id wie Song)
+   setlists: {id, name, songIds:[], updated}
+   ===================================================================== */
+const DB = (() => {
+  let dbp;
+  function open() {
+    if (dbp) return dbp;
+    dbp = new Promise((res, rej) => {
+      const r = indexedDB.open('setlist-app', 1);
+      r.onupgradeneeded = () => {
+        const db = r.result;
+        db.createObjectStore('songs', { keyPath: 'id' });
+        db.createObjectStore('files', { keyPath: 'id' });
+        db.createObjectStore('setlists', { keyPath: 'id' });
+      };
+      r.onsuccess = () => res(r.result);
+      r.onerror = () => rej(r.error);
+    });
+    return dbp;
+  }
+  async function tx(stores, mode, fn) {
+    const db = await open();
+    return new Promise((res, rej) => {
+      const t = db.transaction(stores, mode);
+      let out;
+      Promise.resolve(fn(t)).then(v => { out = v; });
+      t.oncomplete = () => res(out);
+      t.onerror = () => rej(t.error);
+      t.onabort = () => rej(t.error || new Error('abgebrochen'));
+    });
+  }
+  const req = r => new Promise((res, rej) => { r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
+  return {
+    all: store => tx([store], 'readonly', t => req(t.objectStore(store).getAll())),
+    get: (store, id) => tx([store], 'readonly', t => req(t.objectStore(store).get(id))),
+    put: (store, obj) => tx([store], 'readwrite', t => { t.objectStore(store).put(obj); }),
+    putSong: (song, data) => tx(['songs', 'files'], 'readwrite', t => {
+      t.objectStore('songs').put(song);
+      if (data) t.objectStore('files').put({ id: song.id, data });
+    }),
+    del: (store, id) => tx([store], 'readwrite', t => { t.objectStore(store).delete(id); }),
+    delSong: id => tx(['songs', 'files'], 'readwrite', t => {
+      t.objectStore('songs').delete(id); t.objectStore('files').delete(id);
+    })
+  };
+})();
+
+/* ===================================================================== */
+const S = { songs: [], setlists: [], tab: 'songs', editId: null, q: '' };
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+const collator = new Intl.Collator('de', { numeric: true, sensitivity: 'base' });
+const sortedSongs = () => [...S.songs].sort((a, b) => collator.compare(a.name, b.name));
+const songById = id => S.songs.find(s => s.id === id);
+const plural = (n, a, b) => `${n} ${n === 1 ? a : b}`;
+const lsGet = (k, d) => { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch { return d; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+
+let toastT;
+function toast(msg) {
+  const t = $('#toast'); t.textContent = msg; t.classList.add('on');
+  clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 2400);
+}
+
+/* ---------- Modals (eigene Dialoge statt alert/confirm/prompt) ---------- */
+function modal(html, onMount) {
+  const bg = document.createElement('div');
+  bg.className = 'modal-bg';
+  bg.innerHTML = `<div class="sheet">${html}</div>`;
+  const close = () => bg.remove();
+  bg.addEventListener('click', e => { if (e.target === bg) close(); });
+  $('#modal-root').appendChild(bg);
+  onMount && onMount(bg.querySelector('.sheet'), close);
+  return close;
+}
+function ask(title, value = '', okLabel = 'Speichern') {
+  return new Promise(res => {
+    modal(`<h2>${esc(title)}</h2>
+      <form><input class="textin" style="margin-top:12px" value="${esc(value)}" autocomplete="off">
+      <div class="actions h"><button type="button" class="btn" data-x>Abbrechen</button><button class="btn primary">${esc(okLabel)}</button></div></form>`,
+      (el, close) => {
+        const inp = el.querySelector('input');
+        setTimeout(() => { inp.focus(); inp.select(); }, 50);
+        el.querySelector('[data-x]').onclick = () => { close(); res(null); };
+        el.querySelector('form').onsubmit = e => { e.preventDefault(); const v = inp.value.trim(); close(); res(v || null); };
+      });
+  });
+}
+function confirmBox(title, text, okLabel = 'Löschen') {
+  return new Promise(res => {
+    modal(`<h2>${esc(title)}</h2>${text ? `<p>${esc(text)}</p>` : ''}
+      <div class="actions h"><button class="btn" data-x>Abbrechen</button><button class="btn danger" data-ok>${esc(okLabel)}</button></div>`,
+      (el, close) => {
+        el.querySelector('[data-x]').onclick = () => { close(); res(false); };
+        el.querySelector('[data-ok]').onclick = () => { close(); res(true); };
+      });
+  });
+}
+
+/* ---------- PDF ---------- */
+async function pageCount(buf) {
+  const doc = await pdfjsLib.getDocument({ data: new Uint8Array(buf.slice(0)) }).promise;
+  const n = doc.numPages; doc.destroy(); return n;
+}
+async function importPdfs(files) {
+  const list = [...files].filter(f => /\.pdf$/i.test(f.name) || f.type === 'application/pdf');
+  if (!list.length) return;
+  let ok = 0, fail = 0;
+  for (const f of list) {
+    toast(`Importiere ${ok + fail + 1}/${list.length} …`);
+    try {
+      const buf = await f.arrayBuffer();
+      const pages = await pageCount(buf);
+      const song = { id: uid(), name: f.name.replace(/\.pdf$/i, '').replace(/[_]+/g, ' ').trim(), pages, added: Date.now() };
+      await DB.putSong(song, buf);
+      S.songs.push(song); ok++;
+    } catch (e) { console.error(e); fail++; }
+  }
+  render();
+  toast(fail ? `${ok} importiert, ${fail} fehlgeschlagen` : `${plural(ok, 'Lied', 'Lieder')} importiert`);
+}
+
+/* =====================================================================
+   Ansichten
+   ===================================================================== */
+function render() {
+  const app = $('#app');
+  if (S.tab === 'edit') return renderEditor(app);
+  const isSongs = S.tab === 'songs';
+  app.innerHTML = `
+    <header class="top">
+      <div class="row"><h1 class="grow">${isSongs ? 'Lieder' : 'Setlists'}</h1>
+        <button class="btn icon" id="menu" title="Mehr">⋯</button>
+        ${isSongs ? '<button class="btn primary" id="add">+ PDFs</button>' : '<button class="btn primary" id="add">+ Neu</button>'}
+      </div>
+      ${isSongs && S.songs.length ? `<input class="search" id="q" style="margin-top:10px" placeholder="Suchen (${S.songs.length})" value="${esc(S.q)}" type="search">` : ''}
+    </header>
+    <main id="content"></main>
+    <nav class="tabs">
+      <button data-tab="songs" class="${isSongs ? 'on' : ''}">Lieder</button>
+      <button data-tab="setlists" class="${!isSongs ? 'on' : ''}">Setlists</button>
+    </nav>`;
+  app.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { S.tab = b.dataset.tab; render(); scrollTo(0, 0); });
+  $('#menu').onclick = openMenu;
+  if (isSongs) {
+    $('#add').onclick = () => $('#file-pdf').click();
+    const q = $('#q');
+    if (q) q.oninput = () => { S.q = q.value; renderSongList(); };
+    renderSongList();
+  } else {
+    $('#add').onclick = async () => {
+      const name = await ask('Neue Setlist', '', 'Erstellen');
+      if (!name) return;
+      const sl = { id: uid(), name, songIds: [], updated: Date.now() };
+      await DB.put('setlists', sl); S.setlists.push(sl);
+      S.editId = sl.id; S.tab = 'edit'; render(); openPicker();
+    };
+    renderSetlists();
+  }
+}
+
+function renderSongList() {
+  const c = $('#content');
+  if (!S.songs.length) {
+    c.innerHTML = `<div class="empty"><b>Noch keine Lieder</b>Tippe auf „+ PDFs“ und wähle deine Noten aus (mehrere auf einmal möglich). Der Dateiname wird zum Liednamen.</div>`;
+    return;
+  }
+  const q = S.q.trim().toLowerCase();
+  const songs = sortedSongs().filter(s => !q || s.name.toLowerCase().includes(q));
+  c.innerHTML = songs.length ? `<ul class="list">${songs.map(s => `
+      <li><button class="main" data-id="${s.id}"><div class="t">${esc(s.name)}</div><div class="s">${plural(s.pages, 'Seite', 'Seiten')}</div></button></li>`).join('')}</ul>`
+    : `<div class="empty">Nichts gefunden.</div>`;
+  c.querySelectorAll('[data-id]').forEach(b => b.onclick = () => songMenu(b.dataset.id));
+}
+
+function songMenu(id) {
+  const s = songById(id); if (!s) return;
+  const uses = S.setlists.filter(l => l.songIds.includes(id)).length;
+  modal(`<h2>${esc(s.name)}</h2><p>${plural(s.pages, 'Seite', 'Seiten')}${uses ? ` · in ${plural(uses, 'Setlist', 'Setlists')}` : ''}</p>
+    <div class="actions">
+      <button class="btn primary" data-a="view">Ansehen</button>
+      <button class="btn" data-a="rename">Umbenennen</button>
+      <button class="btn" data-a="replace">PDF ersetzen</button>
+      <button class="btn danger" data-a="del">Löschen</button>
+    </div>`, (el, close) => {
+    el.querySelectorAll('[data-a]').forEach(b => b.onclick = async () => {
+      close();
+      const a = b.dataset.a;
+      if (a === 'view') Perf.start([id], s.name);
+      if (a === 'rename') {
+        const n = await ask('Umbenennen', s.name); if (!n) return;
+        s.name = n; await DB.put('songs', s); render();
+      }
+      if (a === 'replace') { replaceTarget = id; $('#file-replace').click(); }
+      if (a === 'del') {
+        if (!await confirmBox(`„${s.name}“ löschen?`, uses ? `Das Lied wird auch aus ${plural(uses, 'Setlist', 'Setlists')} entfernt.` : '')) return;
+        await DB.delSong(id);
+        S.songs = S.songs.filter(x => x.id !== id);
+        for (const l of S.setlists) if (l.songIds.includes(id)) { l.songIds = l.songIds.filter(x => x !== id); await DB.put('setlists', l); }
+        render(); toast('Gelöscht');
+      }
+    });
+  });
+}
+let replaceTarget = null;
+
+function renderSetlists() {
+  const c = $('#content');
+  if (!S.setlists.length) {
+    c.innerHTML = `<div class="empty"><b>Noch keine Setlists</b>Tippe auf „+ Neu“, gib der Setlist einen Namen und tippe die Lieder in der Reihenfolge an, in der ihr sie spielt.</div>`;
+    return;
+  }
+  const lists = [...S.setlists].sort((a, b) => b.updated - a.updated);
+  c.innerHTML = `<ul class="list">${lists.map(l => `
+    <li><button class="main" data-id="${l.id}"><div class="t">${esc(l.name)}</div><div class="s">${plural(l.songIds.length, 'Lied', 'Lieder')}</div></button>
+    <button class="btn primary icon" data-play="${l.id}" title="Starten">▶</button></li>`).join('')}</ul>`;
+  c.querySelectorAll('[data-id]').forEach(b => b.onclick = () => { S.editId = b.dataset.id; S.tab = 'edit'; render(); scrollTo(0, 0); });
+  c.querySelectorAll('[data-play]').forEach(b => b.onclick = () => playSetlist(b.dataset.play));
+}
+
+function playSetlist(id, startAt = 0) {
+  const l = S.setlists.find(x => x.id === id);
+  const ids = l.songIds.filter(songById);
+  if (!ids.length) return toast('Setlist ist leer');
+  Perf.start(ids, l.name, startAt);
+}
+
+async function saveSetlist(l) { l.updated = Date.now(); await DB.put('setlists', l); }
+
+function renderEditor(app) {
+  const l = S.setlists.find(x => x.id === S.editId);
+  if (!l) { S.tab = 'setlists'; return render(); }
+  l.songIds = l.songIds.filter(songById);
+  const pages = l.songIds.reduce((n, id) => n + songById(id).pages, 0);
+  app.innerHTML = `
+    <header class="top">
+      <div class="row">
+        <button class="btn" id="back">‹ Zurück</button><div class="grow"></div>
+        <button class="btn icon" id="more">⋯</button>
+        <button class="btn primary" id="play" ${l.songIds.length ? '' : 'disabled style="opacity:.4"'}>▶ Start</button>
+      </div>
+      <button id="title" style="text-align:left;margin-top:10px;width:100%"><h1>${esc(l.name)}</h1></button>
+      <div class="s" style="color:var(--muted);font-size:14px">${plural(l.songIds.length, 'Lied', 'Lieder')} · ${plural(pages, 'Seite', 'Seiten')}</div>
+    </header>
+    <main>
+      ${l.songIds.length ? `<ul class="list" id="order">${l.songIds.map((id, i) => `
+        <li data-id="${id}"><span class="num">${i + 1}</span>
+          <button class="main" data-start="${i}"><div class="t">${esc(songById(id).name)}</div></button>
+          <button class="btn icon" data-rm="${i}" title="Entfernen" style="background:none;color:var(--muted)">✕</button>
+          <span class="handle">≡</span></li>`).join('')}</ul>
+        <p style="color:var(--muted);font-size:13px;margin:8px 4px">An ≡ ziehen zum Sortieren · Lied antippen, um ab dort zu starten</p>`
+      : `<div class="empty"><b>Leere Setlist</b>Füge Lieder in der Reihenfolge hinzu, in der ihr sie spielt.</div>`}
+      <button class="btn primary" id="addsongs" style="width:100%;margin-top:12px">+ Lieder hinzufügen</button>
+    </main>`;
+  $('#back').onclick = () => { S.tab = 'setlists'; render(); };
+  $('#play').onclick = () => playSetlist(l.id);
+  $('#addsongs').onclick = openPicker;
+  $('#title').onclick = async () => { const n = await ask('Setlist umbenennen', l.name); if (n) { l.name = n; await saveSetlist(l); render(); } };
+  $('#more').onclick = () => modal(`<h2>${esc(l.name)}</h2><div class="actions">
+      <button class="btn" data-a="dup">Duplizieren</button>
+      <button class="btn" data-a="copy">Als Text kopieren</button>
+      <button class="btn danger" data-a="del">Setlist löschen</button></div>`, (el, close) => {
+    el.querySelectorAll('[data-a]').forEach(b => b.onclick = async () => {
+      close();
+      if (b.dataset.a === 'dup') {
+        const c = { id: uid(), name: l.name + ' (Kopie)', songIds: [...l.songIds], updated: Date.now() };
+        await DB.put('setlists', c); S.setlists.push(c); S.editId = c.id; render(); toast('Dupliziert');
+      }
+      if (b.dataset.a === 'copy') {
+        const txt = l.name + '\n\n' + l.songIds.map((id, i) => `${i + 1}. ${songById(id).name}`).join('\n');
+        try { await navigator.clipboard.writeText(txt); toast('Kopiert'); } catch { toast('Kopieren nicht möglich'); }
+      }
+      if (b.dataset.a === 'del') {
+        if (!await confirmBox(`„${l.name}“ löschen?`, 'Die Lieder selbst bleiben erhalten.')) return;
+        await DB.del('setlists', l.id); S.setlists = S.setlists.filter(x => x.id !== l.id); S.tab = 'setlists'; render();
+      }
+    });
+  });
+  app.querySelectorAll('[data-rm]').forEach(b => b.onclick = async () => { l.songIds.splice(+b.dataset.rm, 1); await saveSetlist(l); render(); });
+  app.querySelectorAll('[data-start]').forEach(b => b.onclick = () => playSetlist(l.id, +b.dataset.start));
+  const order = $('#order');
+  if (order && window.Sortable) {
+    Sortable.create(order, {
+      handle: '.handle', animation: 150, delay: 0,
+      onEnd: async () => {
+        l.songIds = [...order.children].map(li => li.dataset.id);
+        await saveSetlist(l); render();
+      }
+    });
+  }
+}
+
+/* Lieder-Auswahl: antippen hängt ans Ende der Setlist an */
+function openPicker() {
+  const l = S.setlists.find(x => x.id === S.editId);
+  if (!S.songs.length) return toast('Erst Lieder im Tab „Lieder“ hochladen');
+  let q = '';
+  modal(`<div class="row"><h2 class="grow">Lieder hinzufügen</h2><button class="btn primary" data-done>Fertig</button></div>
+    <p>Antippen in Spielreihenfolge – jedes Lied wird hinten angehängt.</p>
+    <input class="search" style="margin-top:12px" placeholder="Suchen" type="search">
+    <div class="scroll"><ul class="list" style="margin-bottom:4px"></ul></div>`, (el, close) => {
+    const ul = el.querySelector('ul'), inp = el.querySelector('input');
+    const draw = () => {
+      const songs = sortedSongs().filter(s => !q || s.name.toLowerCase().includes(q));
+      ul.innerHTML = songs.map(s => {
+        const pos = l.songIds.map((id, i) => id === s.id ? i + 1 : 0).filter(Boolean);
+        return `<li><button class="main" data-id="${s.id}"><div class="t">${esc(s.name)}</div></button>
+          <span class="check">${pos.length ? '#' + pos.join(', #') : ''}</span></li>`;
+      }).join('') || `<li><div class="main s">Nichts gefunden</div></li>`;
+      ul.querySelectorAll('[data-id]').forEach(b => b.onclick = async () => {
+        l.songIds.push(b.dataset.id); await saveSetlist(l); draw();
+      });
+    };
+    inp.oninput = () => { q = inp.value.trim().toLowerCase(); draw(); };
+    el.querySelector('[data-done]').onclick = () => { close(); render(); };
+    el.parentElement.addEventListener('click', e => { if (e.target === el.parentElement) render(); });
+    draw();
+  });
+}
+
+/* ---------- Menü: Backup ---------- */
+function openMenu() {
+  modal(`<h2>Mehr</h2><p>${plural(S.songs.length, 'Lied', 'Lieder')} · ${plural(S.setlists.length, 'Setlist', 'Setlists')}<span id="usage"></span></p>
+    <div class="actions">
+      <button class="btn" data-a="export">Backup exportieren</button>
+      <button class="btn" data-a="import">Backup importieren</button>
+    </div>
+    <p style="font-size:13px;margin-top:14px">Alles wird nur auf diesem Gerät gespeichert. Mach ab und zu ein Backup (z. B. in iCloud Drive), dann kannst du es auf einem anderen Gerät importieren.</p>`,
+    (el, close) => {
+      if (navigator.storage && navigator.storage.estimate) navigator.storage.estimate().then(e => {
+        const u = el.querySelector('#usage'); if (u && e.usage) u.textContent = ` · ${(e.usage / 1048576).toFixed(1)} MB belegt`;
+      }).catch(() => {});
+      el.querySelector('[data-a="export"]').onclick = () => { close(); exportBackup(); };
+      el.querySelector('[data-a="import"]').onclick = () => { close(); $('#file-backup').click(); };
+    });
+}
+function bufToB64(buf) {
+  const b = new Uint8Array(buf); let s = '';
+  for (let i = 0; i < b.length; i += 0x8000) s += String.fromCharCode.apply(null, b.subarray(i, i + 0x8000));
+  return btoa(s);
+}
+function b64ToBuf(b64) {
+  const s = atob(b64), b = new Uint8Array(s.length);
+  for (let i = 0; i < s.length; i++) b[i] = s.charCodeAt(i);
+  return b.buffer;
+}
+async function exportBackup() {
+  try {
+    toast('Backup wird erstellt …');
+    const songs = [];
+    for (const s of S.songs) {
+      const f = await DB.get('files', s.id);
+      songs.push({ ...s, data: f ? bufToB64(f.data) : null });
+    }
+    const json = JSON.stringify({ app: 'setlist', version: 1, exported: new Date().toISOString(), songs, setlists: S.setlists });
+    const name = `setlist-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    const file = new File([json], name, { type: 'application/json' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try { await navigator.share({ files: [file], title: name }); return; }
+      catch (e) { if (e.name === 'AbortError') return; }
+    }
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(file); a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+  } catch (e) { console.error(e); toast('Export fehlgeschlagen'); }
+}
+async function importBackup(file) {
+  try {
+    const d = JSON.parse(await file.text());
+    if (d.app !== 'setlist') throw new Error('kein Backup');
+    let ns = 0, nl = 0;
+    for (const s of d.songs || []) {
+      if (songById(s.id) || !s.data) continue;
+      const { data, ...meta } = s;
+      await DB.putSong(meta, b64ToBuf(data)); S.songs.push(meta); ns++;
+    }
+    for (const l of d.setlists || []) {
+      if (S.setlists.some(x => x.id === l.id)) continue;
+      await DB.put('setlists', l); S.setlists.push(l); nl++;
+    }
+    render(); toast(`${plural(ns, 'Lied', 'Lieder')}, ${plural(nl, 'Setlist', 'Setlists')} importiert`);
+  } catch (e) { console.error(e); toast('Datei ist kein gültiges Backup'); }
+}
+
+/* =====================================================================
+   Auftrittsmodus
+   ===================================================================== */
+const Perf = (() => {
+  const el = $('#perf'), stage = $('#stage'), hud = $('#hud'), flash = $('#flash'), jump = $('#hud-jump'), loading = $('#loading');
+  let ids = [], title = '', s = 0, p = 1, token = 0, wake = null, flashT, active = false;
+  const docs = new Map();     // songId -> Promise<PDFDocumentProxy>
+  const renders = new Map();  // key -> Promise<canvas>
+
+  const pagesOf = i => (songById(ids[i]) || { pages: 1 }).pages;
+  const size = () => ({ w: stage.clientWidth, h: stage.clientHeight, dpr: Math.min(window.devicePixelRatio || 1, 3) });
+
+  function getDoc(id) {
+    if (!docs.has(id)) {
+      docs.set(id, DB.get('files', id).then(f => pdfjsLib.getDocument({ data: new Uint8Array(f.data) }).promise));
+      if (docs.size > 5) {             // ältestes Dokument freigeben
+        const [k, v] = docs.entries().next().value;
+        if (!isNear(k)) { docs.delete(k); v.then(d => d.destroy()).catch(() => {}); }
+      }
+    }
+    return docs.get(id);
+  }
+  const isNear = id => [s - 1, s, s + 1].some(i => ids[i] === id);
+
+  function renderPage(i, page) {
+    const { w, h, dpr } = size();
+    const key = `${ids[i]}:${page}:${w}x${h}`;
+    if (!renders.has(key)) {
+      renders.set(key, (async () => {
+        const doc = await getDoc(ids[i]);
+        const pg = await doc.getPage(page);
+        const vp1 = pg.getViewport({ scale: 1 });
+        const fit = Math.min(w / vp1.width, h / vp1.height);
+        let scale = fit * dpr;
+        const maxPx = 16e6;                     // iOS Canvas-Limit
+        if (vp1.width * vp1.height * scale * scale > maxPx) scale = Math.sqrt(maxPx / (vp1.width * vp1.height));
+        const vp = pg.getViewport({ scale });
+        const c = document.createElement('canvas');
+        c.width = Math.floor(vp.width); c.height = Math.floor(vp.height);
+        c.style.width = Math.floor(vp1.width * fit) + 'px';
+        c.style.height = Math.floor(vp1.height * fit) + 'px';
+        const ctx = c.getContext('2d');
+        ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
+        await pg.render({ canvasContext: ctx, viewport: vp }).promise;
+        return c;
+      })());
+      while (renders.size > 6) {               // Speicher klein halten
+        const [k, v] = renders.entries().next().value;
+        renders.delete(k); v.then(c => { if (!c.isConnected) { c.width = c.height = 0; } }).catch(() => {});
+      }
+    }
+    return renders.get(key);
+  }
+
+  function neighbors() {
+    const out = [];
+    if (p < pagesOf(s)) out.push([s, p + 1]); else if (s < ids.length - 1) out.push([s + 1, 1]);
+    if (p > 1) out.push([s, p - 1]); else if (s > 0) out.push([s - 1, pagesOf(s - 1)]);
+    return out;
+  }
+
+  async function show(flashIt) {
+    const my = ++token;
+    updateHud();
+    if (flashIt) showFlash();
+    const t = setTimeout(() => { if (my === token) loading.hidden = false; }, 150);
+    try {
+      const c = await renderPage(s, p);
+      if (my !== token) return;
+      stage.replaceChildren(c);
+    } catch (e) {
+      console.error(e);
+      if (my === token) stage.innerHTML = '<div style="color:#c33;padding:20px">PDF konnte nicht geladen werden.</div>';
+    } finally { clearTimeout(t); if (my === token) loading.hidden = true; }
+    // nächste/vorige Seite schon vorbereiten
+    if (my === token) for (const [i, pg] of neighbors()) renderPage(i, pg).catch(() => {});
+  }
+
+  function next() {
+    if (p < pagesOf(s)) { p++; show(false); }
+    else if (s < ids.length - 1) { s++; p = 1; show(true); }
+    else showFlash('Ende der Setlist');
+  }
+  function prev() {
+    if (p > 1) { p--; show(false); }
+    else if (s > 0) { s--; p = pagesOf(s); show(true); }
+    else showFlash('Anfang der Setlist');
+  }
+  function goto(i) { s = i; p = 1; jump.hidden = true; show(true); }
+
+  function showFlash(msg) {
+    const n = ids.length > 1 && s < ids.length - 1 ? songById(ids[s + 1]) : null;
+    flash.innerHTML = msg ? esc(msg)
+      : `<span class="n">${s + 1}/${ids.length}</span> ${esc(songById(ids[s]).name)}${n ? `<br><span style="opacity:.7">Nächstes: ${esc(n.name)}</span>` : ''}`;
+    flash.classList.add('on');
+    clearTimeout(flashT); flashT = setTimeout(() => flash.classList.remove('on'), 2200);
+  }
+
+  function updateHud() {
+    const song = songById(ids[s]);
+    const n = s < ids.length - 1 ? songById(ids[s + 1]) : null;
+    $('#hud-title').textContent = `${ids.length > 1 ? (s + 1) + '. ' : ''}${song.name}`;
+    $('#hud-sub').textContent = [ids.length > 1 ? title : '', pagesOf(s) > 1 ? `Seite ${p}/${pagesOf(s)}` : '', n ? `Nächstes: ${n.name}` : ''].filter(Boolean).join(' · ');
+    $('#hud-list').hidden = ids.length < 2;
+    if (!jump.hidden) drawJump();
+  }
+  function drawJump() {
+    jump.innerHTML = ids.map((id, i) => `<li class="${i === s ? 'cur' : ''}"><span class="num">${i + 1}</span>
+      <button class="main" data-i="${i}"><div class="t">${esc(songById(id).name)}</div></button></li>`).join('');
+    jump.querySelectorAll('[data-i]').forEach(b => b.onclick = e => { e.stopPropagation(); goto(+b.dataset.i); });
+    const cur = jump.querySelector('.cur'); if (cur) cur.scrollIntoView({ block: 'center' });
+  }
+
+  // Tippen: linkes Drittel zurück, rechtes Drittel vor, Mitte = Menü
+  let down = null;
+  el.addEventListener('pointerdown', e => { down = { x: e.clientX, y: e.clientY, t: Date.now() }; });
+  el.addEventListener('pointerup', e => {
+    if (!down || !active) return;
+    const moved = Math.hypot(e.clientX - down.x, e.clientY - down.y) > 30;
+    down = null;
+    if (moved || e.target.closest('.bar, .jump')) return;
+    const x = e.clientX / window.innerWidth;
+    if (!hud.hidden && x > 0.3 && x < 0.7) { hud.hidden = true; jump.hidden = true; return; }
+    if (x < 0.35) prev();
+    else if (x > 0.65) next();
+    else { hud.hidden = !hud.hidden; jump.hidden = true; updateHud(); }
+  });
+  el.addEventListener('contextmenu', e => e.preventDefault());
+  el.addEventListener('dblclick', e => e.preventDefault());
+
+  // Bluetooth-Pedale / Tastatur senden meist Pfeiltasten oder Bild-auf/ab
+  document.addEventListener('keydown', e => {
+    if (!active) return;
+    if (['ArrowRight', 'ArrowDown', 'PageDown', ' ', 'Enter'].includes(e.key)) { e.preventDefault(); next(); }
+    else if (['ArrowLeft', 'ArrowUp', 'PageUp', 'Backspace'].includes(e.key)) { e.preventDefault(); prev(); }
+    else if (e.key === 'Escape') stop();
+  });
+
+  let rt;
+  window.addEventListener('resize', () => {
+    if (!active) return;
+    clearTimeout(rt); rt = setTimeout(() => { renders.clear(); show(false); }, 200);
+  });
+
+  async function lock() {
+    try { if ('wakeLock' in navigator) wake = await navigator.wakeLock.request('screen'); } catch {}
+  }
+  document.addEventListener('visibilitychange', () => { if (active && document.visibilityState === 'visible') lock(); });
+
+  $('#hud-exit').onclick = () => stop();
+  $('#hud-list').onclick = () => { jump.hidden = !jump.hidden; if (!jump.hidden) drawJump(); };
+  $('#hud-dark').onclick = () => { el.classList.toggle('dark'); lsSet('dark', el.classList.contains('dark')); };
+
+  function start(songIds, name, at = 0) {
+    ids = songIds; title = name; s = at; p = 1; active = true;
+    $('#toast').classList.remove('on');
+    renders.clear();
+    el.classList.toggle('dark', !!lsGet('dark', false));
+    el.hidden = false; hud.hidden = true; jump.hidden = true;
+    document.body.style.overflow = 'hidden';
+    stage.replaceChildren();
+    lock();
+    requestAnimationFrame(() => show(ids.length > 1));
+  }
+  function stop() {
+    active = false; token++;
+    el.hidden = true; document.body.style.overflow = '';
+    stage.replaceChildren();
+    renders.forEach(v => v.then(c => { c.width = c.height = 0; }).catch(() => {}));
+    renders.clear();
+    docs.forEach(v => v.then(d => d.destroy()).catch(() => {}));
+    docs.clear();
+    try { wake && wake.release(); } catch {} wake = null;
+  }
+  return { start, stop };
+})();
+
+/* ===================================================================== */
+$('#file-pdf').onchange = e => { importPdfs(e.target.files); e.target.value = ''; };
+$('#file-backup').onchange = e => { if (e.target.files[0]) importBackup(e.target.files[0]); e.target.value = ''; };
+$('#file-replace').onchange = async e => {
+  const f = e.target.files[0]; e.target.value = '';
+  const s = songById(replaceTarget); if (!f || !s) return;
+  try {
+    const buf = await f.arrayBuffer();
+    s.pages = await pageCount(buf);
+    await DB.putSong(s, buf); render(); toast('PDF ersetzt');
+  } catch (err) { console.error(err); toast('PDF konnte nicht gelesen werden'); }
+};
+// Dateien per Drag & Drop (iPad mit Split View, Desktop)
+document.addEventListener('dragover', e => e.preventDefault());
+document.addEventListener('drop', e => { e.preventDefault(); if (e.dataTransfer.files.length) importPdfs(e.dataTransfer.files); });
+
+(async function init() {
+  try {
+    [S.songs, S.setlists] = await Promise.all([DB.all('songs'), DB.all('setlists')]);
+  } catch (e) {
+    console.error(e);
+    toast('Speicher nicht verfügbar – Daten werden nicht gesichert');
+  }
+  render();
+  try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch {}
+  if ('serviceWorker' in navigator && location.protocol === 'https:') {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+})();
+</script>
+</body>
+</html>
