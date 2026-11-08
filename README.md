@@ -28,4 +28,4 @@ In GoodNotes Seiten auswählen → Teilen → Exportieren als PDF → in Dateien
 Im GitHub-Repo „Add file → Upload files“ → wieder den gesamten Inhalt des Ordners hineinziehen (überschreibt die alten Dateien) → Commit. Auf dem iPad die App einmal schließen und neu öffnen, ggf. zweimal. Deine Lieder und Setlists bleiben erhalten.
 
 ## Updates der App
-Nach Änderungen an den Dateien in `sw.js` die Zeile `VERSION = 'setlist-v3'` hochzählen, sonst zeigt das iPad noch die alte Version aus dem Cache.
+Nach Änderungen an den Dateien in `sw.js` die Zeile `VERSION = 'setlist-v4'` hochzählen, sonst zeigt das iPad noch die alte Version aus dem Cache.

@@ -7,20 +7,22 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Setlist">
-<meta name="theme-color" content="#111214">
+<meta name="theme-color" content="#09080d">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/icon-180.png">
 <title>Setlist</title>
 <style>
 :root{
-  --bg:#111214; --panel:#1b1c20; --panel2:#24262b; --line:#2f3238;
-  --text:#ecebe6; --muted:#8d9099; --accent:#e8a33d; --accent-ink:#1a1306; --danger:#e5554f;
+  --bg:#09080d; --panel:#13101b; --panel2:#1f1930; --line:#2a2240;
+  --text:#f2eefa; --muted:#8e86a8; --accent:#a855f7; --accent-soft:#c9a3ff; --accent-ink:#fff; --danger:#ff5d7a;
+  --grad:linear-gradient(135deg,#c084fc 0%,#a855f7 45%,#6d28d9 100%);
   --r:14px;
   --st:env(safe-area-inset-top,0px); --sb:env(safe-area-inset-bottom,0px);
   --sl:env(safe-area-inset-left,0px); --sr:env(safe-area-inset-right,0px);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;height:100%;background:var(--bg);color:var(--text);
+html,body{margin:0;height:100%;background:var(--bg);}
+body{background:radial-gradient(900px 420px at 50% -160px,rgba(139,61,255,.28),transparent 70%),radial-gradient(600px 400px at 110% 110%,rgba(109,40,217,.14),transparent 70%),var(--bg);background-attachment:fixed;color:var(--text);
   font:16px/1.4 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;
   -webkit-text-size-adjust:100%;overscroll-behavior:none}
 button,input{font:inherit;color:inherit}
@@ -29,21 +31,22 @@ button{background:none;border:0;padding:0;cursor:pointer;touch-action:manipulati
 
 /* ---------- Layout ---------- */
 #app{min-height:100%;display:flex;flex-direction:column}
-header.top{position:sticky;top:0;z-index:5;background:rgba(17,18,20,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+header.top{position:sticky;top:0;z-index:5;background:rgba(9,8,13,.78);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
   padding:calc(var(--st) + 10px) calc(var(--sr) + 16px) 10px calc(var(--sl) + 16px);border-bottom:1px solid var(--line)}
 .row{display:flex;align-items:center;gap:10px}
 .grow{flex:1;min-width:0}
-h1{font-size:28px;margin:0;font-weight:700;letter-spacing:-.02em}
+h1{font-size:30px;margin:0;font-weight:800;letter-spacing:-.03em;background:linear-gradient(90deg,#fff 30%,#c9a3ff);-webkit-background-clip:text;background-clip:text;color:transparent}
 main{flex:1;padding:12px calc(var(--sr) + 16px) calc(var(--sb) + 96px) calc(var(--sl) + 16px);max-width:820px;width:100%;margin:0 auto}
 
 nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;display:flex;justify-content:center;gap:8px;
-  padding:8px 16px calc(var(--sb) + 8px);background:rgba(17,18,20,.94);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--line)}
+  padding:8px 16px calc(var(--sb) + 8px);background:rgba(9,8,13,.85);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line)}
 nav.tabs button{flex:1;max-width:220px;padding:10px;border-radius:12px;color:var(--muted);font-weight:600}
-nav.tabs button.on{background:var(--panel2);color:var(--text)}
+nav.tabs button.on{background:rgba(168,85,247,.18);color:#e9d5ff;box-shadow:inset 0 0 0 1px rgba(168,85,247,.35)}
 
 /* ---------- Controls ---------- */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:0 16px;border-radius:12px;background:var(--panel2);font-weight:600;white-space:nowrap}
-.btn.primary{background:var(--accent);color:var(--accent-ink)}
+.btn.primary{background:var(--grad);color:var(--accent-ink);box-shadow:0 6px 20px -6px rgba(139,61,255,.7)}
+.btn.big{min-height:56px;padding:0 28px;font-size:18px;border-radius:16px}
 .btn.danger{color:var(--danger)}
 .btn.icon{width:44px;padding:0;font-size:20px}
 .btn:active{opacity:.7}
@@ -53,7 +56,8 @@ nav.tabs button.on{background:var(--panel2);color:var(--text)}
 .textin:focus{border-color:var(--accent)}
 
 /* ---------- Lists ---------- */
-.list{list-style:none;margin:12px 0 0;padding:0;background:var(--panel);border-radius:var(--r);overflow:hidden}
+.list{list-style:none;margin:12px 0 0;padding:0;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.list li.sel{background:rgba(168,85,247,.12)}
 .list li{display:flex;align-items:center;gap:12px;padding:0 8px 0 16px;min-height:58px;border-bottom:1px solid var(--line)}
 .list li:last-child{border-bottom:0}
 .list li .main{flex:1;min-width:0;padding:10px 0;text-align:left}
@@ -65,17 +69,17 @@ nav.tabs button.on{background:var(--panel2);color:var(--text)}
 .sortable-chosen{background:var(--panel2)}
 .empty{text-align:center;color:var(--muted);padding:48px 20px}
 .empty b{display:block;color:var(--text);font-size:18px;margin-bottom:6px}
-.check{color:var(--accent);font-weight:700;min-width:28px;text-align:center}
+.check{color:var(--accent-soft);font-weight:700;min-width:28px;text-align:center}
 textarea.textin{height:220px;padding:12px 14px;resize:vertical;font-size:15px;line-height:1.5}
 .list li.off .t{color:var(--muted);font-weight:500;font-style:italic}
 .raw{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .bar-prog{height:6px;border-radius:3px;background:var(--panel2);overflow:hidden;margin-top:16px}
-.bar-prog i{display:block;height:100%;width:0;background:var(--accent);transition:width .2s}
+.bar-prog i{display:block;height:100%;width:0;background:var(--grad);transition:width .2s}
 .section-label{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:22px 4px 0}
 
 /* ---------- Modal ---------- */
 .modal-bg{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.55);display:flex;align-items:flex-end;justify-content:center;animation:fade .15s}
-.sheet{width:100%;max-width:560px;max-height:88vh;display:flex;flex-direction:column;background:var(--panel);border-radius:20px 20px 0 0;
+.sheet{width:100%;max-width:560px;max-height:88vh;display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line);border-bottom:0;border-radius:20px 20px 0 0;
   padding:18px calc(var(--sr) + 18px) calc(var(--sb) + 18px) calc(var(--sl) + 18px);animation:up .2s ease-out}
 @media (min-width:700px){.modal-bg{align-items:center}.sheet{border-radius:20px}}
 .sheet h2{margin:0 0 4px;font-size:20px}
@@ -87,22 +91,24 @@ textarea.textin{height:220px;padding:12px 14px;resize:vertical;font-size:15px;li
 @keyframes up{from{transform:translateY(30px);opacity:0}}
 @keyframes fade{from{opacity:0}}
 
-#toast{position:fixed;left:50%;bottom:calc(var(--sb) + 90px);transform:translateX(-50%);z-index:80;background:#2d3036;color:var(--text);
+#toast{position:fixed;left:50%;bottom:calc(var(--sb) + 90px);transform:translateX(-50%);z-index:80;background:#241b38;border:1px solid rgba(168,85,247,.4);color:var(--text);
   padding:10px 18px;border-radius:999px;font-weight:600;font-size:15px;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90vw;text-align:center}
 #toast.on{opacity:1}
 
 /* ---------- Performance mode ---------- */
-#perf{position:fixed;inset:0;z-index:40;background:#fff;user-select:none;-webkit-user-select:none;touch-action:manipulation;overflow:hidden}
+#perf{position:fixed;inset:0;z-index:40;background:#fff;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none;overflow:hidden}
 #perf.dark{background:#000}
 #stage{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
-#stage canvas{display:block;max-width:100%;max-height:100%}
-#perf.dark #stage canvas{filter:invert(1) hue-rotate(180deg)}
-#flash{position:absolute;right:calc(var(--sr) + 12px);bottom:calc(var(--sb) + 12px);background:rgba(20,20,22,.82);color:#fff;
+#stage{overflow:hidden}
+#zoomer{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;transform-origin:0 0;will-change:transform}
+#zoomer canvas{display:block}
+#perf.dark #zoomer canvas{filter:invert(1) hue-rotate(180deg)}
+#flash{position:absolute;right:calc(var(--sr) + 12px);bottom:calc(var(--sb) + 12px);background:rgba(19,16,27,.88);border:1px solid rgba(168,85,247,.4);color:#fff;
   padding:8px 14px;border-radius:12px;font-size:14px;font-weight:600;opacity:0;transition:opacity .4s;pointer-events:none;max-width:70vw}
 #flash.on{opacity:1}
-#flash .n{color:var(--accent)}
+#flash .n{color:var(--accent-soft)}
 #hud{position:absolute;inset:0;pointer-events:none}
-#hud .bar{pointer-events:auto;position:absolute;left:0;right:0;top:0;background:rgba(17,18,20,.94);color:var(--text);
+#hud .bar{pointer-events:auto;position:absolute;left:0;right:0;top:0;background:rgba(12,10,18,.95);border-bottom:1px solid rgba(168,85,247,.35);color:var(--text);
   padding:calc(var(--st) + 10px) calc(var(--sr) + 14px) 10px calc(var(--sl) + 14px);display:flex;align-items:center;gap:10px;box-shadow:0 4px 20px rgba(0,0,0,.3)}
 #hud .info{flex:1;min-width:0}
 #hud .info .t{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -110,7 +116,10 @@ textarea.textin{height:220px;padding:12px 14px;resize:vertical;font-size:15px;li
 #hud .jump{pointer-events:auto;position:absolute;top:calc(var(--st) + 72px);right:calc(var(--sr) + 10px);width:min(360px,calc(100vw - 20px));
   max-height:calc(100% - var(--st) - var(--sb) - 90px);overflow:auto;background:var(--panel);border-radius:var(--r);box-shadow:0 10px 40px rgba(0,0,0,.5)}
 #hud .jump li.cur{background:var(--panel2)}
-#hud .jump li.cur .t{color:var(--accent)}
+#hud .jump li.cur .t{color:var(--accent-soft)}
+#hud .clock{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent-soft)}
+#hud .bottom{pointer-events:auto;position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:center;padding:14px 16px calc(var(--sb) + 18px);
+  background:linear-gradient(to top,rgba(9,8,13,.85),transparent)}
 #loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#888;font-size:15px;pointer-events:none}
 </style>
 </head>
@@ -118,17 +127,18 @@ textarea.textin{height:220px;padding:12px 14px;resize:vertical;font-size:15px;li
 <div id="app"></div>
 
 <div id="perf" hidden>
-  <div id="stage"></div>
+  <div id="stage"><div id="zoomer"></div></div>
   <div id="loading" hidden>Lade …</div>
   <div id="flash"></div>
   <div id="hud" hidden>
     <div class="bar">
-      <button class="btn" id="hud-exit">Beenden</button>
-      <div class="info"><div class="t" id="hud-title"></div><div class="s" id="hud-sub"></div></div>
+      <div class="info"><div class="clock" id="hud-clock"></div><div class="t" id="hud-title"></div><div class="s" id="hud-sub"></div></div>
+      <button class="btn" id="hud-zoom" hidden>1:1</button>
       <button class="btn" id="hud-dark">Nacht</button>
       <button class="btn" id="hud-list">Liste</button>
     </div>
     <ul class="list jump" id="hud-jump" hidden></ul>
+    <div class="bottom"><button class="btn primary big" id="hud-exit">✓ Setlist beenden</button></div>
   </div>
 </div>
 
@@ -459,7 +469,7 @@ function openPicker() {
   if (!S.songs.length) return toast('Erst Lieder im Tab „Lieder“ hochladen');
   let q = '';
   modal(`<div class="row"><h2 class="grow">Lieder hinzufügen</h2><button class="btn primary" data-done>Fertig</button></div>
-    <p>Antippen in Spielreihenfolge – jedes Lied wird hinten angehängt.</p>
+    <p>Antippen in Spielreihenfolge: einmal = hinzufügen, nochmal = entfernen, doppelt tippen = ein weiteres Mal hinzufügen.</p>
     <input class="search" style="margin-top:12px" placeholder="Suchen" type="search">
     <div class="scroll"><ul class="list" style="margin-bottom:4px"></ul></div>`, (el, close) => {
     const ul = el.querySelector('ul'), inp = el.querySelector('input');
@@ -467,12 +477,26 @@ function openPicker() {
       const songs = sortedSongs().filter(s => !q || s.name.toLowerCase().includes(q));
       ul.innerHTML = songs.map(s => {
         const pos = l.songIds.map((id, i) => id === s.id ? i + 1 : 0).filter(Boolean);
-        return `<li><button class="main" data-id="${s.id}"><div class="t">${esc(s.name)}</div></button>
+        return `<li class="${pos.length ? 'sel' : ''}"><button class="main" data-id="${s.id}"><div class="t">${esc(s.name)}</div></button>
           <span class="check">${pos.length ? '#' + pos.join(', #') : ''}</span></li>`;
       }).join('') || `<li><div class="main s">Nichts gefunden</div></li>`;
-      ul.querySelectorAll('[data-id]').forEach(b => b.onclick = async () => {
-        l.songIds.push(b.dataset.id); await saveSetlist(l); draw();
-      });
+      ul.querySelectorAll('[data-id]').forEach(b => b.onclick = () => tap(b.dataset.id));
+    };
+    // Einfach-Tipp wirkt sofort (an/ab). Kommt innerhalb 350 ms ein zweiter Tipp aufs selbe Lied,
+    // wird der erste rückgängig gemacht und das Lied ein weiteres Mal angehängt.
+    let last = null;
+    const tap = id => {
+      const now = Date.now();
+      if (last && last.id === id && now - last.t < 350) {
+        last.undo(); l.songIds.push(id); last = null;
+      } else {
+        const i = l.songIds.lastIndexOf(id);
+        let undo;
+        if (i >= 0) { l.songIds.splice(i, 1); undo = () => l.songIds.splice(i, 0, id); }
+        else { l.songIds.push(id); undo = () => l.songIds.pop(); }
+        last = { id, t: now, undo };
+      }
+      saveSetlist(l); draw();
     };
     inp.oninput = () => { q = inp.value.trim().toLowerCase(); draw(); };
     el.querySelector('[data-done]').onclick = () => { close(); render(); };
@@ -742,36 +766,39 @@ async function importBackup(file) {
    Auftrittsmodus
    ===================================================================== */
 const Perf = (() => {
-  const el = $('#perf'), stage = $('#stage'), hud = $('#hud'), flash = $('#flash'), jump = $('#hud-jump'), loading = $('#loading');
-  let ids = [], title = '', s = 0, p = 1, token = 0, wake = null, flashT, active = false;
+  const el = $('#perf'), stage = $('#stage'), zoomer = $('#zoomer'), hud = $('#hud'), flash = $('#flash'),
+    jump = $('#hud-jump'), loading = $('#loading');
+  let ids = [], title = '', s = 0, p = 1, token = 0, wake = null, flashT, clockT, active = false;
   const docs = new Map();     // songId -> Promise<PDFDocumentProxy>
   const renders = new Map();  // key -> Promise<canvas>
+  let Z = { s: 1, x: 0, y: 0 }; // Zoom-Zustand
 
   const pagesOf = i => (songById(ids[i]) || { pages: 1 }).pages;
   const size = () => ({ w: stage.clientWidth, h: stage.clientHeight, dpr: Math.min(window.devicePixelRatio || 1, 3) });
+  const isNear = id => [s - 1, s, s + 1].some(i => ids[i] === id);
 
   function getDoc(id) {
     if (!docs.has(id)) {
       docs.set(id, DB.get('files', id).then(f => pdfjsLib.getDocument({ data: new Uint8Array(f.data) }).promise));
-      if (docs.size > 5) {             // ältestes Dokument freigeben
+      if (docs.size > 5) {
         const [k, v] = docs.entries().next().value;
         if (!isNear(k)) { docs.delete(k); v.then(d => d.destroy()).catch(() => {}); }
       }
     }
     return docs.get(id);
   }
-  const isNear = id => [s - 1, s, s + 1].some(i => ids[i] === id);
 
-  function renderPage(i, page) {
+  // zf > 1: höher aufgelöst rendern (für Zoom), Anzeigegröße bleibt gleich
+  function renderPage(i, page, zf = 1) {
     const { w, h, dpr } = size();
-    const key = `${ids[i]}:${page}:${w}x${h}`;
+    const key = `${ids[i]}:${page}:${w}x${h}:${zf}`;
     if (!renders.has(key)) {
       renders.set(key, (async () => {
         const doc = await getDoc(ids[i]);
         const pg = await doc.getPage(page);
         const vp1 = pg.getViewport({ scale: 1 });
         const fit = Math.min(w / vp1.width, h / vp1.height);
-        let scale = fit * dpr;
+        let scale = fit * dpr * zf;
         const maxPx = 16e6;                     // iOS Canvas-Limit
         if (vp1.width * vp1.height * scale * scale > maxPx) scale = Math.sqrt(maxPx / (vp1.width * vp1.height));
         const vp = pg.getViewport({ scale });
@@ -784,7 +811,7 @@ const Perf = (() => {
         await pg.render({ canvasContext: ctx, viewport: vp }).promise;
         return c;
       })());
-      while (renders.size > 6) {               // Speicher klein halten
+      while (renders.size > 6) {
         const [k, v] = renders.entries().next().value;
         renders.delete(k); v.then(c => { if (!c.isConnected) { c.width = c.height = 0; } }).catch(() => {});
       }
@@ -807,26 +834,51 @@ const Perf = (() => {
     try {
       const c = await renderPage(s, p);
       if (my !== token) return;
-      stage.replaceChildren(c);
+      zoomer.replaceChildren(c);
     } catch (e) {
       console.error(e);
-      if (my === token) stage.innerHTML = '<div style="color:#c33;padding:20px">PDF konnte nicht geladen werden.</div>';
+      if (my === token) zoomer.innerHTML = '<div style="color:#c33;padding:20px">PDF konnte nicht geladen werden.</div>';
     } finally { clearTimeout(t); if (my === token) loading.hidden = true; }
-    // nächste/vorige Seite schon vorbereiten
-    if (my === token) for (const [i, pg] of neighbors()) renderPage(i, pg).catch(() => {});
+    if (my !== token) return;
+    if (Z.s > 1.2) hiRes();
+    for (const [i, pg] of neighbors()) renderPage(i, pg).catch(() => {});
   }
 
+  /* ---------- Zoom ---------- */
+  function applyZ() {
+    zoomer.style.transform = Z.s === 1 ? '' : `translate(${Z.x}px,${Z.y}px) scale(${Z.s})`;
+    $('#hud-zoom').hidden = Z.s === 1;
+  }
+  function clampZ() {
+    const W = stage.clientWidth, H = stage.clientHeight;
+    Z.s = Math.min(5, Math.max(1, Z.s));
+    if (Z.s <= 1.02) { Z = { s: 1, x: 0, y: 0 }; return; }
+    Z.x = Math.min(0, Math.max(W - W * Z.s, Z.x));
+    Z.y = Math.min(0, Math.max(H - H * Z.s, Z.y));
+  }
+  function resetZoom() { Z = { s: 1, x: 0, y: 0 }; applyZ(); }
+  let hiT;
+  function hiRes() {
+    clearTimeout(hiT);
+    hiT = setTimeout(async () => {
+      if (Z.s <= 1.2) return;
+      const my = token, zf = Math.min(4, Math.ceil(Z.s * 2) / 2);
+      try { const c = await renderPage(s, p, zf); if (my === token && Z.s > 1.2) zoomer.replaceChildren(c); } catch {}
+    }, 200);
+  }
+
+  /* ---------- Navigation ---------- */
   function next() {
     if (p < pagesOf(s)) { p++; show(false); }
-    else if (s < ids.length - 1) { s++; p = 1; show(true); }
+    else if (s < ids.length - 1) { s++; p = 1; resetZoom(); show(true); }
     else showFlash('Ende der Setlist');
   }
   function prev() {
     if (p > 1) { p--; show(false); }
-    else if (s > 0) { s--; p = pagesOf(s); show(true); }
+    else if (s > 0) { s--; p = pagesOf(s); resetZoom(); show(true); }
     else showFlash('Anfang der Setlist');
   }
-  function goto(i) { s = i; p = 1; jump.hidden = true; show(true); }
+  function goto(i) { s = i; p = 1; jump.hidden = true; resetZoom(); show(true); }
 
   function showFlash(msg) {
     const n = ids.length > 1 && s < ids.length - 1 ? songById(ids[s + 1]) : null;
@@ -836,10 +888,14 @@ const Perf = (() => {
     clearTimeout(flashT); flashT = setTimeout(() => flash.classList.remove('on'), 2200);
   }
 
+  const fmtClock = new Intl.DateTimeFormat('de-DE', { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  function updateClock() { $('#hud-clock').textContent = fmtClock.format(new Date()).replace(',', ' ·').replace(' um ', ' · '); }
+
   function updateHud() {
     const song = songById(ids[s]);
     const n = s < ids.length - 1 ? songById(ids[s + 1]) : null;
-    $('#hud-title').textContent = `${ids.length > 1 ? (s + 1) + '. ' : ''}${song.name}`;
+    updateClock();
+    $('#hud-title').textContent = `${ids.length > 1 ? (s + 1) + '/' + ids.length + ' · ' : ''}${song.name}`;
     $('#hud-sub').textContent = [ids.length > 1 ? title : '', pagesOf(s) > 1 ? `Seite ${p}/${pagesOf(s)}` : '', n ? `Nächstes: ${n.name}` : ''].filter(Boolean).join(' · ');
     $('#hud-list').hidden = ids.length < 2;
     if (!jump.hidden) drawJump();
@@ -850,25 +906,66 @@ const Perf = (() => {
     jump.querySelectorAll('[data-i]').forEach(b => b.onclick = e => { e.stopPropagation(); goto(+b.dataset.i); });
     const cur = jump.querySelector('.cur'); if (cur) cur.scrollIntoView({ block: 'center' });
   }
+  function toggleHud(force) {
+    hud.hidden = force === undefined ? !hud.hidden : !force;
+    jump.hidden = true;
+    clearInterval(clockT);
+    if (!hud.hidden) { updateHud(); clockT = setInterval(updateClock, 15000); }
+  }
 
-  // Tippen: linkes Drittel zurück, rechtes Drittel vor, Mitte = Menü
-  let down = null;
-  el.addEventListener('pointerdown', e => { down = { x: e.clientX, y: e.clientY, t: Date.now() }; });
-  el.addEventListener('pointerup', e => {
-    if (!down || !active) return;
-    const moved = Math.hypot(e.clientX - down.x, e.clientY - down.y) > 30;
-    down = null;
-    if (moved || e.target.closest('.bar, .jump')) return;
-    const x = e.clientX / window.innerWidth;
-    if (!hud.hidden && x > 0.3 && x < 0.7) { hud.hidden = true; jump.hidden = true; return; }
-    if (x < 0.35) prev();
-    else if (x > 0.65) next();
-    else { hud.hidden = !hud.hidden; jump.hidden = true; updateHud(); }
+  /* ---------- Gesten ----------
+     1 Finger tippen: links = zurück, rechts = weiter, Mitte = Menü
+     2 Finger: zoomen · 1 Finger ziehen (wenn gezoomt): verschieben */
+  const pts = new Map(); let g = null;
+  function onTap(x, target) {
+    if (target.closest && target.closest('.bar, .jump, .bottom')) return;
+    const r = x / window.innerWidth;
+    if (!hud.hidden && r > 0.3 && r < 0.7) return toggleHud(false);
+    if (r < 0.35) prev();
+    else if (r > 0.65) next();
+    else toggleHud();
+  }
+  el.addEventListener('pointerdown', e => {
+    pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pts.size === 1) g = { type: 'tap', x0: e.clientX, y0: e.clientY, zx: Z.x, zy: Z.y, target: e.target };
+    else if (pts.size === 2) {
+      const [a, b] = [...pts.values()];
+      g = { type: 'pinch', d0: Math.hypot(a.x - b.x, a.y - b.y) || 1, m0: { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }, s0: Z.s, x0: Z.x, y0: Z.y };
+    }
   });
+  el.addEventListener('pointermove', e => {
+    if (!pts.has(e.pointerId) || !g) return;
+    pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (g.type === 'pinch' && pts.size >= 2) {
+      const [a, b] = [...pts.values()];
+      const d = Math.hypot(a.x - b.x, a.y - b.y), m = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+      const sc = Math.min(5, Math.max(1, g.s0 * d / g.d0));
+      const px = (g.m0.x - g.x0) / g.s0, py = (g.m0.y - g.y0) / g.s0;   // Punkt unter den Fingern bleibt fix
+      Z = { s: sc, x: m.x - px * sc, y: m.y - py * sc }; clampZ(); applyZ();
+    } else if (g.type === 'tap' || g.type === 'pan') {
+      const dx = e.clientX - g.x0, dy = e.clientY - g.y0, dist = Math.hypot(dx, dy);
+      if (g.type === 'tap' && Z.s > 1 && dist > 10) g.type = 'pan';
+      if (g.type === 'tap' && dist > 30) g.type = 'none';
+      if (g.type === 'pan') { Z.x = g.zx + dx; Z.y = g.zy + dy; clampZ(); applyZ(); }
+    }
+  });
+  const endPtr = e => {
+    if (!pts.has(e.pointerId)) return;
+    pts.delete(e.pointerId);
+    if (!g) return;
+    if (g.type === 'pinch') g.type = 'none';
+    if (pts.size > 0) return;
+    const t = g; g = null;
+    if (Z.s > 1.2) hiRes();          // nach Zoom/Verschieben scharf nachrendern
+    if (t.type === 'tap' && active && e.type === 'pointerup') onTap(e.clientX, t.target);
+  };
+  el.addEventListener('pointerup', endPtr);
+  el.addEventListener('pointercancel', endPtr);
   el.addEventListener('contextmenu', e => e.preventDefault());
   el.addEventListener('dblclick', e => e.preventDefault());
+  ['gesturestart', 'gesturechange', 'gestureend'].forEach(t => el.addEventListener(t, e => e.preventDefault()));
 
-  // Bluetooth-Pedale / Tastatur senden meist Pfeiltasten oder Bild-auf/ab
+  // Bluetooth-Pedale / Tastatur
   document.addEventListener('keydown', e => {
     if (!active) return;
     if (['ArrowRight', 'ArrowDown', 'PageDown', ' ', 'Enter'].includes(e.key)) { e.preventDefault(); next(); }
@@ -879,7 +976,7 @@ const Perf = (() => {
   let rt;
   window.addEventListener('resize', () => {
     if (!active) return;
-    clearTimeout(rt); rt = setTimeout(() => { renders.clear(); show(false); }, 200);
+    clearTimeout(rt); rt = setTimeout(() => { renders.clear(); resetZoom(); show(false); }, 200);
   });
 
   async function lock() {
@@ -890,22 +987,25 @@ const Perf = (() => {
   $('#hud-exit').onclick = () => stop();
   $('#hud-list').onclick = () => { jump.hidden = !jump.hidden; if (!jump.hidden) drawJump(); };
   $('#hud-dark').onclick = () => { el.classList.toggle('dark'); lsSet('dark', el.classList.contains('dark')); };
+  $('#hud-zoom').onclick = () => { resetZoom(); show(false); };
 
   function start(songIds, name, at = 0) {
     ids = songIds; title = name; s = at; p = 1; active = true;
     $('#toast').classList.remove('on');
-    renders.clear();
+    renders.clear(); resetZoom();
+    $('#hud-exit').textContent = ids.length > 1 ? '✓ Setlist beenden' : '✓ Schließen';
     el.classList.toggle('dark', !!lsGet('dark', false));
     el.hidden = false; hud.hidden = true; jump.hidden = true;
     document.body.style.overflow = 'hidden';
-    stage.replaceChildren();
+    zoomer.replaceChildren();
     lock();
     requestAnimationFrame(() => show(ids.length > 1));
   }
   function stop() {
-    active = false; token++;
+    active = false; token++; pts.clear(); g = null;
+    clearInterval(clockT);
     el.hidden = true; document.body.style.overflow = '';
-    stage.replaceChildren();
+    zoomer.replaceChildren(); resetZoom();
     renders.forEach(v => v.then(c => { c.width = c.height = 0; }).catch(() => {}));
     renders.clear();
     docs.forEach(v => v.then(d => d.destroy()).catch(() => {}));
