@@ -66,6 +66,11 @@ nav.tabs button.on{background:var(--panel2);color:var(--text)}
 .empty{text-align:center;color:var(--muted);padding:48px 20px}
 .empty b{display:block;color:var(--text);font-size:18px;margin-bottom:6px}
 .check{color:var(--accent);font-weight:700;min-width:28px;text-align:center}
+textarea.textin{height:220px;padding:12px 14px;resize:vertical;font-size:15px;line-height:1.5}
+.list li.off .t{color:var(--muted);font-weight:500;font-style:italic}
+.raw{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar-prog{height:6px;border-radius:3px;background:var(--panel2);overflow:hidden;margin-top:16px}
+.bar-prog i{display:block;height:100%;width:0;background:var(--accent);transition:width .2s}
 .section-label{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:22px 4px 0}
 
 /* ---------- Modal ---------- */
@@ -129,9 +134,10 @@ nav.tabs button.on{background:var(--panel2);color:var(--text)}
 
 <div id="modal-root"></div>
 <div id="toast"></div>
-<input type="file" id="file-pdf" accept="application/pdf,.pdf" multiple hidden>
+<input type="file" id="file-pdf" accept="application/pdf,.pdf,application/zip,.zip" multiple hidden>
 <input type="file" id="file-replace" accept="application/pdf,.pdf" hidden>
 <input type="file" id="file-backup" accept="application/json,.json" hidden>
+<input type="file" id="file-image" accept="image/*" hidden>
 
 <script src="lib/pdf.min.js"></script>
 <script src="lib/Sortable.min.js"></script>
@@ -247,9 +253,27 @@ async function pageCount(buf) {
   const doc = await pdfjsLib.getDocument({ data: new Uint8Array(buf.slice(0)) }).promise;
   const n = doc.numPages; doc.destroy(); return n;
 }
+// Zip-Dateien entpacken: alle PDFs darin (auch in Unterordnern) übernehmen
+async function expandFiles(files) {
+  const out = [];
+  for (const f of files) {
+    if (/\.zip$/i.test(f.name) || /zip/.test(f.type)) {
+      try {
+        toast('Entpacke ' + f.name + ' …');
+        if (!window.JSZip) await loadScript('lib/jszip.min.js');
+        const z = await JSZip.loadAsync(await f.arrayBuffer());
+        const entries = Object.values(z.files)
+          .filter(e => !e.dir && /\.pdf$/i.test(e.name) && !/(^|\/)(__MACOSX\/|\._)/.test(e.name))
+          .sort((a, b) => collator.compare(a.name, b.name));
+        for (const e of entries) out.push({ name: e.name.split('/').pop(), arrayBuffer: () => e.async('arraybuffer') });
+      } catch (e) { console.error(e); toast(f.name + ' konnte nicht entpackt werden'); }
+    } else if (/\.pdf$/i.test(f.name) || f.type === 'application/pdf') out.push(f);
+  }
+  return out;
+}
 async function importPdfs(files) {
-  const list = [...files].filter(f => /\.pdf$/i.test(f.name) || f.type === 'application/pdf');
-  if (!list.length) return;
+  const list = await expandFiles([...files]);
+  if (!list.length) return toast('Keine PDFs gefunden');
   let ok = 0, fail = 0;
   for (const f of list) {
     toast(`Importiere ${ok + fail + 1}/${list.length} …`);
@@ -293,13 +317,7 @@ function render() {
     if (q) q.oninput = () => { S.q = q.value; renderSongList(); };
     renderSongList();
   } else {
-    $('#add').onclick = async () => {
-      const name = await ask('Neue Setlist', '', 'Erstellen');
-      if (!name) return;
-      const sl = { id: uid(), name, songIds: [], updated: Date.now() };
-      await DB.put('setlists', sl); S.setlists.push(sl);
-      S.editId = sl.id; S.tab = 'edit'; render(); openPicker();
-    };
+    $('#add').onclick = newSetlistMenu;
     renderSetlists();
   }
 }
@@ -307,7 +325,7 @@ function render() {
 function renderSongList() {
   const c = $('#content');
   if (!S.songs.length) {
-    c.innerHTML = `<div class="empty"><b>Noch keine Lieder</b>Tippe auf „+ PDFs“ und wähle deine Noten aus (mehrere auf einmal möglich). Der Dateiname wird zum Liednamen.</div>`;
+    c.innerHTML = `<div class="empty"><b>Noch keine Lieder</b>Tippe auf „+ PDFs“ und wähle deine Noten aus: mehrere PDFs auf einmal oder eine Zip-Datei voller PDFs. Der Dateiname wird zum Liednamen.</div>`;
     return;
   }
   const q = S.q.trim().toLowerCase();
@@ -461,6 +479,198 @@ function openPicker() {
     el.parentElement.addEventListener('click', e => { if (e.target === el.parentElement) render(); });
     draw();
   });
+}
+
+
+/* =====================================================================
+   Setlist aus Foto / Text erkennen
+   ===================================================================== */
+function newSetlistMenu() {
+  modal(`<h2>Neue Setlist</h2>
+    <div class="actions">
+      <button class="btn primary" data-a="empty">Leer – Lieder antippen</button>
+      <button class="btn" data-a="photo">Aus Foto / Screenshot erkennen</button>
+      <button class="btn" data-a="text">Aus Text einfügen</button>
+    </div>
+    <p style="font-size:13px;margin-top:14px">Foto: z. B. Screenshot deiner Excel-Setlist. Die Erkennung läuft komplett auf dem Gerät.</p>`, (el, close) => {
+    el.querySelector('[data-a=empty]').onclick = async () => {
+      close();
+      const name = await ask('Neue Setlist', '', 'Erstellen'); if (!name) return;
+      await createSetlist(name, []); openPicker();
+    };
+    el.querySelector('[data-a=photo]').onclick = () => {
+      close();
+      if (!S.songs.length) return toast('Erst Lieder im Tab „Lieder“ hochladen');
+      $('#file-image').click();
+    };
+    el.querySelector('[data-a=text]').onclick = () => { close(); textImport(); };
+  });
+}
+
+async function createSetlist(name, songIds) {
+  const sl = { id: uid(), name, songIds, updated: Date.now() };
+  await DB.put('setlists', sl); S.setlists.push(sl);
+  S.editId = sl.id; S.tab = 'edit'; render(); scrollTo(0, 0);
+  return sl;
+}
+
+function textImport() {
+  if (!S.songs.length) return toast('Erst Lieder im Tab „Lieder“ hochladen');
+  modal(`<h2>Setlist aus Text</h2>
+    <p>Liste einfügen, ein Lied pro Zeile. Geht z. B. aus Excel kopiert oder per iOS-Live-Text aus einem Foto.</p>
+    <textarea class="textin" style="margin-top:12px" placeholder="1. Allergie&#10;2. Wolken&#10;3. …"></textarea>
+    <div class="actions h"><button class="btn" data-x>Abbrechen</button><button class="btn primary" data-ok>Erkennen</button></div>`, (el, close) => {
+    const ta = el.querySelector('textarea'); setTimeout(() => ta.focus(), 50);
+    el.querySelector('[data-x]').onclick = close;
+    el.querySelector('[data-ok]').onclick = () => { const t = ta.value; close(); reviewImport(matchLines(t)); };
+  });
+}
+
+/* --- Abgleich der erkannten Zeilen mit den Liednamen --- */
+const norm = s => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/ß/g, 'ss').replace(/[^a-z0-9]+/g, ' ').trim();
+function bigrams(s) {
+  s = s.replace(/ /g, ''); const m = new Map();
+  for (let i = 0; i < s.length - 1; i++) { const b = s.slice(i, i + 2); m.set(b, (m.get(b) || 0) + 1); }
+  return m;
+}
+function dice(a, b) {
+  if (a === b) return 1;
+  if (a.length < 2 || b.length < 2) return 0;
+  const A = bigrams(a), B = bigrams(b); let inter = 0, tot = 0;
+  for (const [k, v] of A) { inter += Math.min(v, B.get(k) || 0); tot += v; }
+  for (const v of B.values()) tot += v;
+  return 2 * inter / tot;
+}
+function matchLines(text) {
+  const songs = S.songs.map(s => ({ s, n: norm(s.name) }));
+  const strip = c => c.replace(/^\s*\d{1,3}\s*[.):\-]?\s*/, '').replace(/\b\d{1,2}[:.]\d{2}\b/g, ' ');
+  const rows = [];
+  for (let raw of String(text).split(/\r?\n/)) {
+    raw = raw.replace(/\s+$/, '').replace(/^\s+/, ''); if (!raw) continue;
+    const cells = raw.split(/\t| {2,}|[|¦]/).map(c => c.trim()).filter(Boolean);
+    const cand = [...new Set([raw, ...cells].flatMap(c => [norm(c), norm(strip(c))]))].filter(c => c.length >= 2);
+    let best = null, score = 0;
+    for (const c of cand) for (const x of songs) {
+      let sc = dice(c, x.n);
+      if (x.n.length >= 4 && (' ' + c + ' ').includes(' ' + x.n + ' ')) sc = Math.max(sc, 0.85 + 0.15 * x.n.length / c.length);
+      if (sc > score) { score = sc; best = x.s; }
+    }
+    const letters = (raw.match(/\p{L}/gu) || []).length;
+    if (score >= 0.55) rows.push({ raw, id: best.id });
+    else if (letters >= 3) rows.push({ raw, id: null });
+  }
+  return rows;
+}
+
+function chooseSong(title) {
+  return new Promise(res => {
+    let q = '';
+    modal(`<div class="row"><h2 class="grow">${esc(title)}</h2><button class="btn" data-x>Abbrechen</button></div>
+      <input class="search" style="margin-top:12px" placeholder="Suchen" type="search">
+      <div class="scroll"><ul class="list" style="margin-bottom:4px"></ul></div>`, (el, close) => {
+      const ul = el.querySelector('ul'), inp = el.querySelector('input');
+      const draw = () => {
+        ul.innerHTML = sortedSongs().filter(s => !q || s.name.toLowerCase().includes(q))
+          .map(s => `<li><button class="main" data-id="${s.id}"><div class="t">${esc(s.name)}</div></button></li>`).join('') || '<li><div class="main s">Nichts gefunden</div></li>';
+        ul.querySelectorAll('[data-id]').forEach(b => b.onclick = () => { close(); res(b.dataset.id); });
+      };
+      inp.oninput = () => { q = inp.value.trim().toLowerCase(); draw(); };
+      el.querySelector('[data-x]').onclick = () => { close(); res(null); };
+      draw();
+    });
+  });
+}
+
+function reviewImport(rows) {
+  if (!rows.length) return toast('Keine Zeilen erkannt');
+  const d = new Date();
+  let name = `Gig ${d.getDate()}.${d.getMonth() + 1}.`;
+  const reopen = () => {
+    const n = rows.filter(r => r.id).length;
+    modal(`<h2>Erkannte Setlist</h2>
+      <p>${n} von ${rows.length} Zeilen zugeordnet. Zeile antippen zum Ändern, ✕ zum Entfernen.</p>
+      <input class="textin" style="margin-top:12px" value="${esc(name)}" placeholder="Name der Setlist">
+      <div class="scroll"><ul class="list" style="margin-bottom:4px">${rows.map((r, i) => `
+        <li class="${r.id ? '' : 'off'}"><button class="main" data-i="${i}">
+          <div class="t">${r.id ? esc(songById(r.id).name) : 'nicht zugeordnet – antippen'}</div>
+          <div class="raw">erkannt: ${esc(r.raw)}</div></button>
+          <button class="btn icon" data-rm="${i}" style="background:none;color:var(--muted)">✕</button></li>`).join('')}</ul></div>
+      <div class="actions h"><button class="btn" data-x>Abbrechen</button><button class="btn primary" data-ok ${n ? '' : 'disabled style="opacity:.4"'}>Speichern (${n})</button></div>`, (el, close) => {
+      const inp = el.querySelector('.textin');
+      inp.oninput = () => { name = inp.value; };
+      el.querySelector('[data-x]').onclick = close;
+      el.querySelectorAll('[data-rm]').forEach(b => b.onclick = () => { rows.splice(+b.dataset.rm, 1); close(); reopen(); });
+      el.querySelectorAll('[data-i]').forEach(b => b.onclick = async () => {
+        const r = rows[+b.dataset.i]; close();
+        const id = await chooseSong(`„${r.raw.slice(0, 40)}“`);
+        if (id) r.id = id;
+        reopen();
+      });
+      el.querySelector('[data-ok]').onclick = async () => {
+        const ids = rows.filter(r => r.id).map(r => r.id); if (!ids.length) return;
+        close(); await createSetlist(name.trim() || 'Neue Setlist', ids); toast('Setlist gespeichert');
+      };
+    });
+  };
+  reopen();
+}
+
+/* --- Texterkennung (Tesseract, lokal) --- */
+let ocrWorker = null;
+function loadScript(src) {
+  return new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = src; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); });
+}
+function prepImage(file) {
+  return new Promise((res, rej) => {
+    const img = new Image(), url = URL.createObjectURL(file);
+    img.onload = () => {
+      const long = Math.max(img.width, img.height);
+      let k = long < 1400 ? 2 : 1;                 // kleine Screenshots hochskalieren
+      if (long * k > 3000) k = 3000 / long;
+      const c = document.createElement('canvas');
+      c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+      const ctx = c.getContext('2d');
+      ctx.filter = 'grayscale(1) contrast(1.3)';
+      ctx.drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url); res(c);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('Bild nicht lesbar')); };
+    img.src = url;
+  });
+}
+async function ocrImport(file) {
+  let closeProg, bar, label;
+  closeProg = modal(`<h2>Erkenne Setlist …</h2><p id="ocr-l">Texterkennung wird geladen</p><div class="bar-prog"><i></i></div>`, el => {
+    bar = el.querySelector('i'); label = el.querySelector('#ocr-l');
+  });
+  const set = (t, p) => { label.textContent = t; if (p != null) bar.style.width = Math.round(p * 100) + '%'; };
+  try {
+    const base = new URL('lib/tesseract/', location.href).href;
+    if (!window.Tesseract) await loadScript(base + 'tesseract.min.js');
+    if (!ocrWorker) {
+      ocrWorker = await Tesseract.createWorker('deu', 1, {
+        workerPath: base + 'worker.min.js', corePath: base, langPath: base,
+        logger: m => {
+          if (m.status === 'recognizing text') set('Lese Text …', m.progress);
+          else if (m.status && m.status.startsWith('loading')) set('Texterkennung wird geladen', m.progress * 0.3);
+        }
+      });
+      await ocrWorker.setParameters({ tessedit_pageseg_mode: '6', preserve_interword_spaces: '1' });
+    }
+    set('Bild wird vorbereitet', 0.05);
+    const canvas = await prepImage(file);
+    const { data } = await ocrWorker.recognize(canvas);
+    closeProg();
+    const rows = matchLines(data.text);
+    if (!rows.some(r => r.id)) {
+      toast('Keine Lieder erkannt – Bild schärfer/größer versuchen');
+      if (!rows.length) return;
+    }
+    reviewImport(rows);
+  } catch (e) {
+    console.error(e); closeProg();
+    toast('Texterkennung fehlgeschlagen');
+  }
 }
 
 /* ---------- Menü: Backup ---------- */
@@ -707,6 +917,7 @@ const Perf = (() => {
 
 /* ===================================================================== */
 $('#file-pdf').onchange = e => { importPdfs(e.target.files); e.target.value = ''; };
+$('#file-image').onchange = e => { const f = e.target.files[0]; e.target.value = ''; if (f) ocrImport(f); };
 $('#file-backup').onchange = e => { if (e.target.files[0]) importBackup(e.target.files[0]); e.target.value = ''; };
 $('#file-replace').onchange = async e => {
   const f = e.target.files[0]; e.target.value = '';
