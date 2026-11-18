@@ -75,6 +75,24 @@ textarea.textin{height:220px;padding:12px 14px;resize:vertical;font-size:15px;li
 .raw{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .bar-prog{height:6px;border-radius:3px;background:var(--panel2);overflow:hidden;margin-top:16px}
 .bar-prog i{display:block;height:100%;width:0;background:var(--grad);transition:width .2s}
+.ins{display:inline-flex;align-items:center;gap:5px;padding:3px 10px 3px 7px;border-radius:999px;font-size:12px;font-weight:700;flex:none;border:1px solid;white-space:nowrap;line-height:1.2}
+.ins svg{width:15px;height:15px;flex:none}
+.ins.mini{padding:1px 7px 1px 5px;font-size:11px;vertical-align:1px;margin-left:6px}
+.ins.mini svg{width:12px;height:12px}
+.ins-bass{color:#7dd3fc;background:rgba(56,189,248,.12);border-color:rgba(56,189,248,.4)}
+.ins-guitar{color:#fdba74;background:rgba(251,146,60,.12);border-color:rgba(251,146,60,.4)}
+.ins-vocals{color:#f9a8d4;background:rgba(244,114,182,.12);border-color:rgba(244,114,182,.4)}
+.chips{display:flex;gap:8px;margin-top:10px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;height:34px;padding:0 13px;border-radius:999px;background:var(--panel);border:1px solid var(--line);font-size:14px;font-weight:600;color:var(--muted);display:inline-flex;align-items:center;gap:6px}
+.chip svg{width:15px;height:15px}
+.chip.on{color:#fff;background:rgba(168,85,247,.22);border-color:rgba(168,85,247,.65)}
+.seg{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:14px}
+.seg button{min-height:58px;border-radius:12px;background:var(--panel2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:13px;font-weight:600;color:var(--muted);border:1px solid transparent}
+.seg button svg{width:22px;height:22px}
+.seg button.on{color:#fff;border-color:var(--accent);background:rgba(168,85,247,.2)}
+.btn.ghost{background:none;color:var(--muted)}
+.note-mark{color:var(--accent-soft)}
 .section-label{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:22px 4px 0}
 
 /* ---------- Modal ---------- */
@@ -102,17 +120,36 @@ textarea.textin{height:220px;padding:12px 14px;resize:vertical;font-size:15px;li
 #stage{overflow:hidden}
 #zoomer{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;transform-origin:0 0;will-change:transform}
 #zoomer canvas{display:block}
-#perf.dark #zoomer canvas{filter:invert(1) hue-rotate(180deg)}
+.pagebox{position:relative;flex:none}
+.pagebox canvas.ink{position:absolute;left:0;top:0;width:100%;height:100%;mix-blend-mode:multiply;pointer-events:none}
+#perf.dark .pagebox{filter:invert(1) hue-rotate(180deg)}
+#perf.view #stage{top:calc(var(--st) + 65px)}
+#perf.view{background:#e9e7ee}
+#perf.view.dark{background:#000}
 #flash{position:absolute;right:calc(var(--sr) + 12px);bottom:calc(var(--sb) + 12px);background:rgba(19,16,27,.88);border:1px solid rgba(168,85,247,.4);color:#fff;
   padding:8px 14px;border-radius:12px;font-size:14px;font-weight:600;opacity:0;transition:opacity .4s;pointer-events:none;max-width:70vw}
 #flash.on{opacity:1}
 #flash .n{color:var(--accent-soft)}
 #hud{position:absolute;inset:0;pointer-events:none}
-#hud .bar{pointer-events:auto;position:absolute;left:0;right:0;top:0;background:rgba(12,10,18,.95);border-bottom:1px solid rgba(168,85,247,.35);color:var(--text);
+.pbar{pointer-events:auto;position:absolute;left:0;right:0;top:0;z-index:3;background:rgba(12,10,18,.95);border-bottom:1px solid rgba(168,85,247,.35);color:var(--text);
   padding:calc(var(--st) + 10px) calc(var(--sr) + 14px) 10px calc(var(--sl) + 14px);display:flex;align-items:center;gap:10px;box-shadow:0 4px 20px rgba(0,0,0,.3)}
-#hud .info{flex:1;min-width:0}
-#hud .info .t{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#hud .info .s{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pbar .info{flex:1;min-width:0}
+.pbar .info .t{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pbar .info .s{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pbar .btn.on{background:var(--grad);color:#fff}
+#tools{position:absolute;left:50%;bottom:calc(var(--sb) + 14px);transform:translateX(-50%);z-index:4;display:flex;align-items:center;gap:4px;
+  padding:6px;border-radius:20px;background:rgba(14,11,22,.96);border:1px solid rgba(168,85,247,.45);box-shadow:0 12px 40px rgba(0,0,0,.45);
+  max-width:calc(100vw - 16px);overflow-x:auto;scrollbar-width:none}
+#tools::-webkit-scrollbar{display:none}
+#tools .tl{flex:none;width:46px;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center;color:#ddd6f3;font-size:22px}
+#tools .tl.on{background:rgba(168,85,247,.28);box-shadow:inset 0 0 0 2px var(--accent)}
+#tools .tl:disabled{opacity:.3}
+#tools .dot{width:20px;height:20px;border-radius:50%;box-shadow:0 0 0 2px rgba(255,255,255,.85)}
+#tools .mk{width:12px;height:24px;border-radius:3px;transform:rotate(30deg);opacity:.9}
+#tools svg{width:24px;height:24px}
+#tools .sep{flex:none;width:1px;height:28px;background:var(--line);margin:0 4px}
+#tools .pg{flex:none;min-width:44px;text-align:center;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+#tools .btn{flex:none;margin-left:4px}
 #hud .jump{pointer-events:auto;position:absolute;top:calc(var(--st) + 72px);right:calc(var(--sr) + 10px);width:min(360px,calc(100vw - 20px));
   max-height:calc(100% - var(--st) - var(--sb) - 90px);overflow:auto;background:var(--panel);border-radius:var(--r);box-shadow:0 10px 40px rgba(0,0,0,.5)}
 #hud .jump li.cur{background:var(--panel2)}
@@ -130,10 +167,19 @@ textarea.textin{height:220px;padding:12px 14px;resize:vertical;font-size:15px;li
   <div id="stage"><div id="zoomer"></div></div>
   <div id="loading" hidden>Lade …</div>
   <div id="flash"></div>
+  <div id="vbar" class="pbar" hidden>
+    <button class="btn" id="v-back">‹ Lieder</button>
+    <div class="info"><div class="t" id="v-title"></div><div class="s" id="v-sub"></div></div>
+    <button class="btn zreset" hidden>1:1</button>
+    <button class="btn" id="v-dark">Nacht</button>
+    <button class="btn" id="v-draw">✎ Zeichnen</button>
+  </div>
+  <div id="tools" hidden></div>
   <div id="hud" hidden>
-    <div class="bar">
+    <div class="bar pbar">
       <div class="info"><div class="clock" id="hud-clock"></div><div class="t" id="hud-title"></div><div class="s" id="hud-sub"></div></div>
-      <button class="btn" id="hud-zoom" hidden>1:1</button>
+      <button class="btn zreset" hidden>1:1</button>
+      <button class="btn" id="hud-draw">✎</button>
       <button class="btn" id="hud-dark">Nacht</button>
       <button class="btn" id="hud-list">Liste</button>
     </div>
@@ -160,18 +206,18 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = 'lib/pdf.worker.min.js';
    songs:    {id, name, pages, added}
    files:    {id, data: ArrayBuffer}   (gleiche id wie Song)
    setlists: {id, name, songIds:[], updated}
+   annots:   {id, pages: {"1": [Striche], ...}}   (Zeichnungen, gleiche id wie Song)
    ===================================================================== */
 const DB = (() => {
   let dbp;
   function open() {
     if (dbp) return dbp;
     dbp = new Promise((res, rej) => {
-      const r = indexedDB.open('setlist-app', 1);
+      const r = indexedDB.open('setlist-app', 2);
       r.onupgradeneeded = () => {
         const db = r.result;
-        db.createObjectStore('songs', { keyPath: 'id' });
-        db.createObjectStore('files', { keyPath: 'id' });
-        db.createObjectStore('setlists', { keyPath: 'id' });
+        for (const n of ['songs', 'files', 'setlists', 'annots'])
+          if (!db.objectStoreNames.contains(n)) db.createObjectStore(n, { keyPath: 'id' });
       };
       r.onsuccess = () => res(r.result);
       r.onerror = () => rej(r.error);
@@ -199,14 +245,16 @@ const DB = (() => {
       if (data) t.objectStore('files').put({ id: song.id, data });
     }),
     del: (store, id) => tx([store], 'readwrite', t => { t.objectStore(store).delete(id); }),
-    delSong: id => tx(['songs', 'files'], 'readwrite', t => {
-      t.objectStore('songs').delete(id); t.objectStore('files').delete(id);
-    })
+    delSong: id => tx(['songs', 'files', 'annots'], 'readwrite', t => {
+      t.objectStore('songs').delete(id); t.objectStore('files').delete(id); t.objectStore('annots').delete(id);
+    }),
+    keys: store => tx([store], 'readonly', t => req(t.objectStore(store).getAllKeys()))
   };
 })();
 
 /* ===================================================================== */
-const S = { songs: [], setlists: [], tab: 'songs', editId: null, q: '' };
+const S = { songs: [], setlists: [], tab: 'songs', editId: null, q: '', fi: lsGetEarly('fi', ''), ann: new Set() };
+function lsGetEarly(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch { return d; } }
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
@@ -216,6 +264,24 @@ const songById = id => S.songs.find(s => s.id === id);
 const plural = (n, a, b) => `${n} ${n === 1 ? a : b}`;
 const lsGet = (k, d) => { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch { return d; } };
 const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+
+/* ---------- Instrumente ---------- */
+const INSTR = {
+  bass: { label: 'Bass', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7.5C5 5 7.4 4 10 4c3.6 0 6 2.6 6 6.2C16 15.4 11 19.3 4.5 21"/><circle cx="6.2" cy="8.6" r="1.9" fill="currentColor" stroke="none"/><circle cx="20" cy="7.6" r="1.2" fill="currentColor" stroke="none"/><circle cx="20" cy="12.6" r="1.2" fill="currentColor" stroke="none"/></svg>' },
+  guitar: { label: 'Gitarre', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m13 11 7-7"/><path d="m18 2 4 4"/><path d="M11.5 8.5c-1.2-1.2-3.3-1.1-4.4.4l-.6.8c-.5.6-1.2.9-2 1C2.9 11 2 12.4 2 14c0 1.5 1 3.2 2.5 4.6C5.9 20.1 7.6 21 9.1 21c1.6 0 3-.9 3.3-2.5.1-.8.4-1.5 1-2l.8-.6c1.5-1.1 1.6-3.2.4-4.4z"/><circle cx="9" cy="15" r="1.6"/></svg>' },
+  vocals: { label: 'Gesang', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v4"/><path d="M8 22h8"/></svg>' }
+};
+const insBadge = (song, mini) => song && INSTR[song.instr]
+  ? `<span class="ins ins-${song.instr}${mini ? ' mini' : ''}">${INSTR[song.instr].icon}${INSTR[song.instr].label}</span>` : '';
+const insLabel = song => song && INSTR[song.instr] ? INSTR[song.instr].label : '';
+// Instrument aus dem Dateinamen erraten, z. B. "Allergie - Bass.pdf"
+function detectInstr(name) {
+  const n = ' ' + name.toLowerCase().replace(/[^a-zäöüß0-9]+/g, ' ') + ' ';
+  if (/ (bass|e bass|bassist) /.test(n)) return 'bass';
+  if (/ (git|gitarre|guitar|gtr|akustik) /.test(n)) return 'guitar';
+  if (/ (gesang|vocals?|vox|voc|lyrics|text|sing|lead) /.test(n)) return 'vocals';
+  return null;
+}
 
 let toastT;
 function toast(msg) {
@@ -290,7 +356,8 @@ async function importPdfs(files) {
     try {
       const buf = await f.arrayBuffer();
       const pages = await pageCount(buf);
-      const song = { id: uid(), name: f.name.replace(/\.pdf$/i, '').replace(/[_]+/g, ' ').trim(), pages, added: Date.now() };
+      const name = f.name.replace(/\.pdf$/i, '').replace(/[_]+/g, ' ').trim();
+      const song = { id: uid(), name, pages, added: Date.now(), instr: detectInstr(name) || S.fi || null };
       await DB.putSong(song, buf);
       S.songs.push(song); ok++;
     } catch (e) { console.error(e); fail++; }
@@ -312,7 +379,8 @@ function render() {
         <button class="btn icon" id="menu" title="Mehr">⋯</button>
         ${isSongs ? '<button class="btn primary" id="add">+ PDFs</button>' : '<button class="btn primary" id="add">+ Neu</button>'}
       </div>
-      ${isSongs && S.songs.length ? `<input class="search" id="q" style="margin-top:10px" placeholder="Suchen (${S.songs.length})" value="${esc(S.q)}" type="search">` : ''}
+      ${isSongs && S.songs.length ? `<input class="search" id="q" style="margin-top:10px" placeholder="Suchen (${S.songs.length})" value="${esc(S.q)}" type="search">
+      <div class="chips" id="chips"></div>` : ''}
     </header>
     <main id="content"></main>
     <nav class="tabs">
@@ -325,6 +393,7 @@ function render() {
     $('#add').onclick = () => $('#file-pdf').click();
     const q = $('#q');
     if (q) q.oninput = () => { S.q = q.value; renderSongList(); };
+    renderChips();
     renderSongList();
   } else {
     $('#add').onclick = newSetlistMenu;
@@ -339,36 +408,61 @@ function renderSongList() {
     return;
   }
   const q = S.q.trim().toLowerCase();
-  const songs = sortedSongs().filter(s => !q || s.name.toLowerCase().includes(q));
+  const songs = sortedSongs().filter(s => (!q || s.name.toLowerCase().includes(q)) && (!S.fi || (S.fi === 'none' ? !INSTR[s.instr] : s.instr === S.fi)));
   c.innerHTML = songs.length ? `<ul class="list">${songs.map(s => `
-      <li><button class="main" data-id="${s.id}"><div class="t">${esc(s.name)}</div><div class="s">${plural(s.pages, 'Seite', 'Seiten')}</div></button></li>`).join('')}</ul>`
+      <li><button class="main" data-view="${s.id}"><div class="t">${esc(s.name)}</div>
+        <div class="s">${plural(s.pages, 'Seite', 'Seiten')}${S.ann.has(s.id) ? ' · <span class="note-mark">✎ Notizen</span>' : ''}</div></button>
+        ${insBadge(s)}
+        <button class="btn icon ghost" data-menu="${s.id}" title="Optionen">⋯</button></li>`).join('')}</ul>`
     : `<div class="empty">Nichts gefunden.</div>`;
-  c.querySelectorAll('[data-id]').forEach(b => b.onclick = () => songMenu(b.dataset.id));
+  c.querySelectorAll('[data-view]').forEach(b => b.onclick = () => { const s = songById(b.dataset.view); Perf.start([s.id], s.name, 0, { view: true }); });
+  c.querySelectorAll('[data-menu]').forEach(b => b.onclick = () => songMenu(b.dataset.menu));
+}
+
+function renderChips() {
+  const el = $('#chips'); if (!el) return;
+  const opts = [['', 'Alle'], ...Object.entries(INSTR).map(([k, v]) => [k, v.icon + v.label]), ['none', 'Ohne']];
+  el.innerHTML = opts.map(([k, l]) => `<button class="chip ${S.fi === k ? 'on' : ''}" data-fi="${k}">${l}</button>`).join('');
+  el.querySelectorAll('[data-fi]').forEach(b => b.onclick = () => { S.fi = b.dataset.fi; lsSet('fi', S.fi); renderChips(); renderSongList(); });
 }
 
 function songMenu(id) {
   const s = songById(id); if (!s) return;
   const uses = S.setlists.filter(l => l.songIds.includes(id)).length;
   modal(`<h2>${esc(s.name)}</h2><p>${plural(s.pages, 'Seite', 'Seiten')}${uses ? ` · in ${plural(uses, 'Setlist', 'Setlists')}` : ''}</p>
+    <div class="seg">${[...Object.keys(INSTR), ''].map(k => `<button data-ins="${k}" class="${(INSTR[s.instr] ? s.instr : '') === k ? 'on' : ''}">${k ? INSTR[k].icon + INSTR[k].label : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="m6 18 12-12"/></svg>Keins'}</button>`).join('')}</div>
     <div class="actions">
-      <button class="btn primary" data-a="view">Ansehen</button>
+      <button class="btn primary" data-a="view">Öffnen</button>
       <button class="btn" data-a="rename">Umbenennen</button>
       <button class="btn" data-a="replace">PDF ersetzen</button>
-      <button class="btn danger" data-a="del">Löschen</button>
+      ${S.ann.has(id) ? '<button class="btn danger" data-a="clearann">Alle Notizen löschen</button>' : ''}
+      <button class="btn danger" data-a="del">Lied löschen</button>
     </div>`, (el, close) => {
+    el.querySelectorAll('[data-ins]').forEach(b => b.onclick = async () => {
+      s.instr = b.dataset.ins || null; await DB.put('songs', s);
+      el.querySelectorAll('[data-ins]').forEach(x => x.classList.toggle('on', x === b));
+      render();
+    });
     el.querySelectorAll('[data-a]').forEach(b => b.onclick = async () => {
       close();
       const a = b.dataset.a;
-      if (a === 'view') Perf.start([id], s.name);
+      if (a === 'view') Perf.start([id], s.name, 0, { view: true });
+      if (a === 'clearann') {
+        if (!await confirmBox('Alle Notizen löschen?', `Alles, was du in „${s.name}“ gezeichnet hast, wird entfernt.`)) return;
+        await DB.del('annots', id); S.ann.delete(id); render(); toast('Notizen gelöscht');
+      }
       if (a === 'rename') {
         const n = await ask('Umbenennen', s.name); if (!n) return;
         s.name = n; await DB.put('songs', s); render();
       }
-      if (a === 'replace') { replaceTarget = id; $('#file-replace').click(); }
+      if (a === 'replace') {
+        if (S.ann.has(id) && !await confirmBox('PDF ersetzen?', 'Deine Notizen in diesem Lied passen dann nicht mehr und werden gelöscht.', 'Weiter')) return;
+        replaceTarget = id; $('#file-replace').click();
+      }
       if (a === 'del') {
         if (!await confirmBox(`„${s.name}“ löschen?`, uses ? `Das Lied wird auch aus ${plural(uses, 'Setlist', 'Setlists')} entfernt.` : '')) return;
         await DB.delSong(id);
-        S.songs = S.songs.filter(x => x.id !== id);
+        S.songs = S.songs.filter(x => x.id !== id); S.ann.delete(id);
         for (const l of S.setlists) if (l.songIds.includes(id)) { l.songIds = l.songIds.filter(x => x !== id); await DB.put('setlists', l); }
         render(); toast('Gelöscht');
       }
@@ -418,7 +512,7 @@ function renderEditor(app) {
     <main>
       ${l.songIds.length ? `<ul class="list" id="order">${l.songIds.map((id, i) => `
         <li data-id="${id}"><span class="num">${i + 1}</span>
-          <button class="main" data-start="${i}"><div class="t">${esc(songById(id).name)}</div></button>
+          <button class="main" data-start="${i}"><div class="t">${esc(songById(id).name)}${insBadge(songById(id), true)}</div></button>
           <button class="btn icon" data-rm="${i}" title="Entfernen" style="background:none;color:var(--muted)">✕</button>
           <span class="handle">≡</span></li>`).join('')}</ul>
         <p style="color:var(--muted);font-size:13px;margin:8px 4px">An ≡ ziehen zum Sortieren · Lied antippen, um ab dort zu starten</p>`
@@ -477,7 +571,7 @@ function openPicker() {
       const songs = sortedSongs().filter(s => !q || s.name.toLowerCase().includes(q));
       ul.innerHTML = songs.map(s => {
         const pos = l.songIds.map((id, i) => id === s.id ? i + 1 : 0).filter(Boolean);
-        return `<li class="${pos.length ? 'sel' : ''}"><button class="main" data-id="${s.id}"><div class="t">${esc(s.name)}</div></button>
+        return `<li class="${pos.length ? 'sel' : ''}"><button class="main" data-id="${s.id}"><div class="t">${esc(s.name)}${insBadge(s, true)}</div></button>
           <span class="check">${pos.length ? '#' + pos.join(', #') : ''}</span></li>`;
       }).join('') || `<li><div class="main s">Nichts gefunden</div></li>`;
       ul.querySelectorAll('[data-id]').forEach(b => b.onclick = () => tap(b.dataset.id));
@@ -729,7 +823,8 @@ async function exportBackup() {
     const songs = [];
     for (const s of S.songs) {
       const f = await DB.get('files', s.id);
-      songs.push({ ...s, data: f ? bufToB64(f.data) : null });
+      const a = S.ann.has(s.id) ? await DB.get('annots', s.id) : null;
+      songs.push({ ...s, data: f ? bufToB64(f.data) : null, ann: a ? a.pages : undefined });
     }
     const json = JSON.stringify({ app: 'setlist', version: 1, exported: new Date().toISOString(), songs, setlists: S.setlists });
     const name = `setlist-backup-${new Date().toISOString().slice(0, 10)}.json`;
@@ -751,8 +846,9 @@ async function importBackup(file) {
     let ns = 0, nl = 0;
     for (const s of d.songs || []) {
       if (songById(s.id) || !s.data) continue;
-      const { data, ...meta } = s;
+      const { data, ann, ...meta } = s;
       await DB.putSong(meta, b64ToBuf(data)); S.songs.push(meta); ns++;
+      if (ann && Object.keys(ann).length) { await DB.put('annots', { id: meta.id, pages: ann }); S.ann.add(meta.id); }
     }
     for (const l of d.setlists || []) {
       if (S.setlists.some(x => x.id === l.id)) continue;
@@ -767,8 +863,8 @@ async function importBackup(file) {
    ===================================================================== */
 const Perf = (() => {
   const el = $('#perf'), stage = $('#stage'), zoomer = $('#zoomer'), hud = $('#hud'), flash = $('#flash'),
-    jump = $('#hud-jump'), loading = $('#loading');
-  let ids = [], title = '', s = 0, p = 1, token = 0, wake = null, flashT, clockT, active = false;
+    jump = $('#hud-jump'), loading = $('#loading'), vbar = $('#vbar'), tools = $('#tools');
+  let ids = [], title = '', s = 0, p = 1, token = 0, wake = null, flashT, clockT, active = false, view = false;
   const docs = new Map();     // songId -> Promise<PDFDocumentProxy>
   const renders = new Map();  // key -> Promise<canvas>
   let Z = { s: 1, x: 0, y: 0 }; // Zoom-Zustand
@@ -826,20 +922,189 @@ const Perf = (() => {
     return out;
   }
 
+  /* =================== Notizen (Zeichnungen) ===================
+     Striche werden relativ zur Seite gespeichert (0..1), passen also bei
+     jeder Bildschirmgröße, Drehung und Zoomstufe. */
+  const anns = new Map();       // songId -> Promise<{id, pages}>
+  let curAnn = null;            // Notizen des aktuellen Lieds
+  let ink = null;               // Zeichen-Canvas der aktuellen Seite
+  let drawMode = false, stroke = null, penUntil = 0, undo = [];
+  const TOOLS = [
+    { t: 'pen', c: '#111111', n: 'Schwarz' }, { t: 'pen', c: '#e11d48', n: 'Rot' }, { t: 'pen', c: '#2563eb', n: 'Blau' },
+    { t: 'marker', c: '#facc15', n: 'Marker gelb' }, { t: 'marker', c: '#4ade80', n: 'Marker grün' }, { t: 'eraser', n: 'Radierer' }
+  ];
+  let toolIdx = Math.min(TOOLS.length - 1, Math.max(0, +lsGet('tool', 0) || 0));
+  const WIDTH = { pen: 0.0028, marker: 0.022 };
+
+  function getAnn(id) {
+    if (!anns.has(id)) anns.set(id, DB.get('annots', id).then(a => a || { id, pages: {} }).catch(() => ({ id, pages: {} })));
+    return anns.get(id);
+  }
+  const strokesOf = (a, page) => a ? (a.pages[page] || (a.pages[page] = [])) : [];
+  const saveTimers = new Map();
+  function saveAnn(a) {
+    const old = saveTimers.get(a.id); if (old) clearTimeout(old.t);
+    saveTimers.set(a.id, { a, t: setTimeout(() => writeAnn(a), 400) });
+  }
+  function writeAnn(a) {
+    saveTimers.delete(a.id);
+    const pages = {};
+    for (const k in a.pages) if (a.pages[k].length) pages[k] = a.pages[k];
+    const has = Object.keys(pages).length > 0;
+    (has ? DB.put('annots', { id: a.id, pages }) : DB.del('annots', a.id)).catch(e => console.error(e));
+    if (has) S.ann.add(a.id); else S.ann.delete(a.id);
+  }
+  function flushSaves() {
+    for (const { a, t } of [...saveTimers.values()]) { clearTimeout(t); writeAnn(a); }
+  }
+
+  function mount(c, zf) {
+    const { dpr } = size();
+    const cw = parseFloat(c.style.width), ch = parseFloat(c.style.height);
+    const box = document.createElement('div'); box.className = 'pagebox';
+    box.style.width = cw + 'px'; box.style.height = ch + 'px';
+    const ic = document.createElement('canvas'); ic.className = 'ink';
+    let k = dpr * zf; if (cw * ch * k * k > 16e6) k = Math.sqrt(16e6 / (cw * ch));
+    ic.width = Math.round(cw * k); ic.height = Math.round(ch * k);
+    box.append(c, ic);
+    if (ink && ink !== ic) ink.width = ink.height = 0;
+    zoomer.replaceChildren(box); ink = ic;
+    drawInk();
+  }
+
+  function drawStroke(ctx, st, W, H) {
+    const P = st.pts; if (P.length < 2) return;
+    ctx.save();
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    ctx.strokeStyle = st.c; ctx.lineWidth = Math.max(1, st.w * W);
+    ctx.globalAlpha = st.t === 'marker' ? 0.42 : 1;
+    ctx.beginPath(); ctx.moveTo(P[0] * W, P[1] * H);
+    if (P.length <= 4) ctx.lineTo(P[P.length - 2] * W + 0.01, P[P.length - 1] * H);
+    else {
+      for (let i = 2; i < P.length - 2; i += 2)
+        ctx.quadraticCurveTo(P[i] * W, P[i + 1] * H, (P[i] + P[i + 2]) / 2 * W, (P[i + 1] + P[i + 3]) / 2 * H);
+      ctx.lineTo(P[P.length - 2] * W, P[P.length - 1] * H);
+    }
+    ctx.stroke(); ctx.restore();
+  }
+  function drawInk() {
+    if (!ink) return;
+    const ctx = ink.getContext('2d'), W = ink.width, H = ink.height;
+    ctx.clearRect(0, 0, W, H);
+    for (const st of strokesOf(curAnn, p)) drawStroke(ctx, st, W, H);
+    if (stroke && stroke.pts) drawStroke(ctx, stroke, W, H);
+  }
+  let inkRaf = 0;
+  const redraw = () => { if (!inkRaf) inkRaf = requestAnimationFrame(() => { inkRaf = 0; drawInk(); }); };
+
+  function toPage(e) {
+    const r = ink.getBoundingClientRect();
+    return [(e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height];
+  }
+  const r4 = v => Math.round(v * 1e4) / 1e4;
+  function startStroke(e) {
+    if (!ink || !curAnn) return;
+    const tl = TOOLS[toolIdx];
+    stroke = { id: e.pointerId, ann: curAnn, page: p };
+    if (tl.t === 'eraser') { stroke.erased = []; eraseAt(e); }
+    else { const [x, y] = toPage(e); Object.assign(stroke, { t: tl.t, c: tl.c, w: WIDTH[tl.t], pts: [r4(x), r4(y)] }); redraw(); }
+  }
+  function moveStroke(e) {
+    const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [];
+    for (const ev of (evs.length ? evs : [e])) {
+      if (stroke.erased) { eraseAt(ev); continue; }
+      const [x, y] = toPage(ev), P = stroke.pts;
+      const dx = x - P[P.length - 2], dy = y - P[P.length - 1];
+      if (dx * dx + dy * dy > 1e-6) P.push(r4(x), r4(y));
+    }
+    redraw();
+  }
+  function endStroke() {
+    const st = stroke; stroke = null;
+    const list = strokesOf(st.ann, st.page);
+    if (st.erased) { if (st.erased.length) undo.push({ type: 'erase', ann: st.ann, page: st.page, items: st.erased }); }
+    else if (st.pts.length >= 2) {
+      const clean = { t: st.t, c: st.c, w: st.w, pts: st.pts };
+      list.push(clean); undo.push({ type: 'add', ann: st.ann, page: st.page, stroke: clean });
+    }
+    saveAnn(st.ann); drawInk(); updateTools();
+  }
+  function eraseAt(ev) {
+    const [x, y] = toPage(ev), list = strokesOf(stroke.ann, stroke.page);
+    const asp = ink.height / ink.width;            // y-Abstände in Breiten-Einheiten umrechnen
+    for (let i = list.length - 1; i >= 0; i--) {
+      const st = list[i], P = st.pts, r = 0.014 + st.w / 2, r2 = r * r;
+      for (let j = 0; j < P.length; j += 2) {
+        const dx = P[j] - x, dy = (P[j + 1] - y) * asp;
+        if (dx * dx + dy * dy < r2) { stroke.erased.push({ st, i }); list.splice(i, 1); break; }
+      }
+    }
+    redraw();
+  }
+  function undoLast() {
+    const a = undo.pop(); if (!a) return;
+    const list = strokesOf(a.ann, a.page);
+    if (a.type === 'add') { const i = list.indexOf(a.stroke); if (i >= 0) list.splice(i, 1); }
+    else for (const it of [...a.items].reverse()) list.splice(Math.min(it.i, list.length), 0, ...(it.all || [it.st]));
+    saveAnn(a.ann);
+    if (a.ann === curAnn && a.page === p) drawInk(); else toast('Rückgängig (andere Seite)');
+    updateTools();
+  }
+  function clearPage() {
+    const list = strokesOf(curAnn, p); if (!list.length) return;
+    undo.push({ type: 'erase', ann: curAnn, page: p, items: [{ i: 0, all: [...list] }] });
+    list.length = 0; saveAnn(curAnn); drawInk(); updateTools();
+  }
+
+  function buildTools() {
+    const ico = tl => tl.t === 'pen' ? `<span class="dot" style="background:${tl.c}"></span>`
+      : tl.t === 'marker' ? `<span class="mk" style="background:${tl.c}"></span>`
+      : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 21-4.3-4.3a1 1 0 0 1 0-1.4l10-10a1 1 0 0 1 1.4 0l5.6 5.6a1 1 0 0 1 0 1.4L11 21"/><path d="M22 21H7"/><path d="m5 11 9 9"/></svg>';
+    tools.innerHTML = TOOLS.map((tl, i) => `<button class="tl" data-tool="${i}" title="${tl.n}">${ico(tl)}</button>`).join('') +
+      `<span class="sep"></span>
+       <button class="tl" id="t-undo" title="Rückgängig"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button>
+       <button class="tl" id="t-clear" title="Seite leeren"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
+       <span class="sep"></span>
+       <button class="tl" id="t-prev" title="Vorige Seite">‹</button><span class="pg" id="t-pg"></span><button class="tl" id="t-next" title="Nächste Seite">›</button>
+       <button class="btn primary" id="t-done">Fertig</button>`;
+    tools.querySelectorAll('[data-tool]').forEach(b => b.onclick = () => { toolIdx = +b.dataset.tool; lsSet('tool', toolIdx); updateTools(); });
+    $('#t-undo').onclick = undoLast;
+    $('#t-clear').onclick = clearPage;
+    $('#t-prev').onclick = () => prev();
+    $('#t-next').onclick = () => next();
+    $('#t-done').onclick = () => setDraw(false);
+  }
+  function updateTools() {
+    if (tools.hidden) return;
+    tools.querySelectorAll('[data-tool]').forEach(b => b.classList.toggle('on', +b.dataset.tool === toolIdx));
+    $('#t-undo').disabled = !undo.length;
+    $('#t-clear').disabled = !strokesOf(curAnn, p).length;
+    $('#t-pg').textContent = ids.length > 1 ? `${s + 1}/${ids.length} · S.${p}` : `${p}/${pagesOf(s)}`;
+  }
+  function setDraw(on) {
+    drawMode = on;
+    tools.hidden = !on;
+    $('#v-draw').classList.toggle('on', on);
+    $('#v-draw').textContent = on ? '✎ Zeichnen an' : '✎ Zeichnen';
+    if (on) { if (!view) toggleHud(false); flash.classList.remove('on'); updateTools(); }
+  }
+
   async function show(flashIt) {
     const my = ++token;
     updateHud();
-    if (flashIt) showFlash();
+    if (flashIt && !view) showFlash();
     const t = setTimeout(() => { if (my === token) loading.hidden = false; }, 150);
     try {
-      const c = await renderPage(s, p);
+      const [c, a] = await Promise.all([renderPage(s, p), getAnn(ids[s])]);
       if (my !== token) return;
-      zoomer.replaceChildren(c);
+      curAnn = a;
+      mount(c, 1);
     } catch (e) {
       console.error(e);
-      if (my === token) zoomer.innerHTML = '<div style="color:#c33;padding:20px">PDF konnte nicht geladen werden.</div>';
+      if (my === token) { ink = null; zoomer.innerHTML = '<div style="color:#c33;padding:20px">PDF konnte nicht geladen werden.</div>'; }
     } finally { clearTimeout(t); if (my === token) loading.hidden = true; }
     if (my !== token) return;
+    updateTools();
     if (Z.s > 1.2) hiRes();
     for (const [i, pg] of neighbors()) renderPage(i, pg).catch(() => {});
   }
@@ -847,7 +1112,7 @@ const Perf = (() => {
   /* ---------- Zoom ---------- */
   function applyZ() {
     zoomer.style.transform = Z.s === 1 ? '' : `translate(${Z.x}px,${Z.y}px) scale(${Z.s})`;
-    $('#hud-zoom').hidden = Z.s === 1;
+    document.querySelectorAll('#perf .zreset').forEach(b => b.hidden = Z.s === 1);
   }
   function clampZ() {
     const W = stage.clientWidth, H = stage.clientHeight;
@@ -861,22 +1126,24 @@ const Perf = (() => {
   function hiRes() {
     clearTimeout(hiT);
     hiT = setTimeout(async () => {
-      if (Z.s <= 1.2) return;
+      if (Z.s <= 1.2 || stroke) return;
       const my = token, zf = Math.min(4, Math.ceil(Z.s * 2) / 2);
-      try { const c = await renderPage(s, p, zf); if (my === token && Z.s > 1.2) zoomer.replaceChildren(c); } catch {}
+      try { const c = await renderPage(s, p, zf); if (my === token && Z.s > 1.2 && !stroke) mount(c, zf); } catch {}
     }, 200);
   }
 
   /* ---------- Navigation ---------- */
   function next() {
+    if (stroke) return;
     if (p < pagesOf(s)) { p++; show(false); }
     else if (s < ids.length - 1) { s++; p = 1; resetZoom(); show(true); }
-    else showFlash('Ende der Setlist');
+    else showFlash(view ? 'Letzte Seite' : 'Ende der Setlist');
   }
   function prev() {
+    if (stroke) return;
     if (p > 1) { p--; show(false); }
     else if (s > 0) { s--; p = pagesOf(s); resetZoom(); show(true); }
-    else showFlash('Anfang der Setlist');
+    else showFlash(view ? 'Erste Seite' : 'Anfang der Setlist');
   }
   function goto(i) { s = i; p = 1; jump.hidden = true; resetZoom(); show(true); }
 
@@ -894,19 +1161,26 @@ const Perf = (() => {
   function updateHud() {
     const song = songById(ids[s]);
     const n = s < ids.length - 1 ? songById(ids[s + 1]) : null;
+    const ins = insLabel(song);
+    if (view) {
+      $('#v-title').textContent = song.name;
+      $('#v-sub').textContent = [ins, `Seite ${p}/${pagesOf(s)}`].filter(Boolean).join(' · ');
+      return;
+    }
     updateClock();
-    $('#hud-title').textContent = `${ids.length > 1 ? (s + 1) + '/' + ids.length + ' · ' : ''}${song.name}`;
+    $('#hud-title').textContent = `${ids.length > 1 ? (s + 1) + '/' + ids.length + ' · ' : ''}${song.name}${ins ? ' (' + ins + ')' : ''}`;
     $('#hud-sub').textContent = [ids.length > 1 ? title : '', pagesOf(s) > 1 ? `Seite ${p}/${pagesOf(s)}` : '', n ? `Nächstes: ${n.name}` : ''].filter(Boolean).join(' · ');
     $('#hud-list').hidden = ids.length < 2;
     if (!jump.hidden) drawJump();
   }
   function drawJump() {
     jump.innerHTML = ids.map((id, i) => `<li class="${i === s ? 'cur' : ''}"><span class="num">${i + 1}</span>
-      <button class="main" data-i="${i}"><div class="t">${esc(songById(id).name)}</div></button></li>`).join('');
+      <button class="main" data-i="${i}"><div class="t">${esc(songById(id).name)}${insBadge(songById(id), true)}</div></button></li>`).join('');
     jump.querySelectorAll('[data-i]').forEach(b => b.onclick = e => { e.stopPropagation(); goto(+b.dataset.i); });
     const cur = jump.querySelector('.cur'); if (cur) cur.scrollIntoView({ block: 'center' });
   }
   function toggleHud(force) {
+    if (view) return;
     hud.hidden = force === undefined ? !hud.hidden : !force;
     jump.hidden = true;
     clearInterval(clockT);
@@ -914,26 +1188,37 @@ const Perf = (() => {
   }
 
   /* ---------- Gesten ----------
-     1 Finger tippen: links = zurück, rechts = weiter, Mitte = Menü
-     2 Finger: zoomen · 1 Finger ziehen (wenn gezoomt): verschieben */
+     Finger tippen: links = zurück, rechts = weiter, Mitte = Menü (nur Setlist)
+     2 Finger: zoomen · 1 Finger ziehen (wenn gezoomt): verschieben
+     Zeichenmodus: Apple Pencil zeichnet, Finger nur zoomen/verschieben,
+     Berührungen während/kurz nach dem Stift werden ignoriert (Handballen). */
+  const UI = '.pbar, .jump, .bottom, #tools';
   const pts = new Map(); let g = null;
   function onTap(x, target) {
-    if (target.closest && target.closest('.bar, .jump, .bottom')) return;
     const r = x / window.innerWidth;
+    if (view) { if (r < 0.4) prev(); else if (r > 0.6) next(); return; }
     if (!hud.hidden && r > 0.3 && r < 0.7) return toggleHud(false);
     if (r < 0.35) prev();
     else if (r > 0.65) next();
     else toggleHud();
   }
   el.addEventListener('pointerdown', e => {
+    if (e.target.closest(UI)) return;
+    if (drawMode && e.pointerType === 'pen') {
+      pts.clear(); g = null; penUntil = Infinity;
+      try { el.setPointerCapture(e.pointerId); } catch {}
+      startStroke(e); return;
+    }
+    if (drawMode && Date.now() < penUntil) return;      // Handballen
     pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
-    if (pts.size === 1) g = { type: 'tap', x0: e.clientX, y0: e.clientY, zx: Z.x, zy: Z.y, target: e.target };
+    if (pts.size === 1) g = { type: 'tap', x0: e.clientX, y0: e.clientY, zx: Z.x, zy: Z.y };
     else if (pts.size === 2) {
       const [a, b] = [...pts.values()];
       g = { type: 'pinch', d0: Math.hypot(a.x - b.x, a.y - b.y) || 1, m0: { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }, s0: Z.s, x0: Z.x, y0: Z.y };
     }
   });
   el.addEventListener('pointermove', e => {
+    if (stroke && e.pointerId === stroke.id) return moveStroke(e);
     if (!pts.has(e.pointerId) || !g) return;
     pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
     if (g.type === 'pinch' && pts.size >= 2) {
@@ -950,14 +1235,15 @@ const Perf = (() => {
     }
   });
   const endPtr = e => {
+    if (stroke && e.pointerId === stroke.id) { endStroke(); penUntil = Date.now() + 600; return; }
     if (!pts.has(e.pointerId)) return;
     pts.delete(e.pointerId);
     if (!g) return;
     if (g.type === 'pinch') g.type = 'none';
     if (pts.size > 0) return;
     const t = g; g = null;
-    if (Z.s > 1.2) hiRes();          // nach Zoom/Verschieben scharf nachrendern
-    if (t.type === 'tap' && active && e.type === 'pointerup') onTap(e.clientX, t.target);
+    if (Z.s > 1.2) hiRes();
+    if (t.type === 'tap' && active && !drawMode && e.type === 'pointerup') onTap(e.clientX, e.target);
   };
   el.addEventListener('pointerup', endPtr);
   el.addEventListener('pointercancel', endPtr);
@@ -970,7 +1256,8 @@ const Perf = (() => {
     if (!active) return;
     if (['ArrowRight', 'ArrowDown', 'PageDown', ' ', 'Enter'].includes(e.key)) { e.preventDefault(); next(); }
     else if (['ArrowLeft', 'ArrowUp', 'PageUp', 'Backspace'].includes(e.key)) { e.preventDefault(); prev(); }
-    else if (e.key === 'Escape') stop();
+    else if ((e.metaKey || e.ctrlKey) && e.key === 'z') { e.preventDefault(); undoLast(); }
+    else if (e.key === 'Escape') drawMode ? setDraw(false) : stop();
   });
 
   let rt;
@@ -982,35 +1269,52 @@ const Perf = (() => {
   async function lock() {
     try { if ('wakeLock' in navigator) wake = await navigator.wakeLock.request('screen'); } catch {}
   }
-  document.addEventListener('visibilitychange', () => { if (active && document.visibilityState === 'visible') lock(); });
+  document.addEventListener('visibilitychange', () => {
+    if (!active) return;
+    if (document.visibilityState === 'visible') lock(); else flushSaves();
+  });
 
+  buildTools();
   $('#hud-exit').onclick = () => stop();
+  $('#v-back').onclick = () => stop();
   $('#hud-list').onclick = () => { jump.hidden = !jump.hidden; if (!jump.hidden) drawJump(); };
-  $('#hud-dark').onclick = () => { el.classList.toggle('dark'); lsSet('dark', el.classList.contains('dark')); };
-  $('#hud-zoom').onclick = () => { resetZoom(); show(false); };
+  const toggleDark = () => { el.classList.toggle('dark'); lsSet('dark', el.classList.contains('dark')); };
+  $('#hud-dark').onclick = toggleDark;
+  $('#v-dark').onclick = toggleDark;
+  $('#hud-draw').onclick = () => setDraw(true);
+  $('#v-draw').onclick = () => setDraw(!drawMode);
+  document.querySelectorAll('#perf .zreset').forEach(b => b.onclick = () => { resetZoom(); show(false); });
 
-  function start(songIds, name, at = 0) {
-    ids = songIds; title = name; s = at; p = 1; active = true;
+  function start(songIds, name, at = 0, opts = {}) {
+    ids = songIds; title = name; s = at; p = 1; active = true; view = !!opts.view;
     $('#toast').classList.remove('on');
-    renders.clear(); resetZoom();
+    renders.clear(); resetZoom(); undo = []; stroke = null;
+    el.classList.toggle('view', view);
+    vbar.hidden = !view;
     $('#hud-exit').textContent = ids.length > 1 ? '✓ Setlist beenden' : '✓ Schließen';
     el.classList.toggle('dark', !!lsGet('dark', false));
     el.hidden = false; hud.hidden = true; jump.hidden = true;
+    setDraw(false);
     document.body.style.overflow = 'hidden';
-    zoomer.replaceChildren();
+    zoomer.replaceChildren(); ink = null;
     lock();
     requestAnimationFrame(() => show(ids.length > 1));
   }
   function stop() {
+    if (stroke) endStroke();
+    flushSaves();
     active = false; token++; pts.clear(); g = null;
     clearInterval(clockT);
+    setDraw(false);
     el.hidden = true; document.body.style.overflow = '';
     zoomer.replaceChildren(); resetZoom();
+    if (ink) ink.width = ink.height = 0; ink = null; curAnn = null;
     renders.forEach(v => v.then(c => { c.width = c.height = 0; }).catch(() => {}));
     renders.clear();
     docs.forEach(v => v.then(d => d.destroy()).catch(() => {}));
-    docs.clear();
+    docs.clear(); anns.clear();
     try { wake && wake.release(); } catch {} wake = null;
+    render();
   }
   return { start, stop };
 })();
@@ -1025,7 +1329,9 @@ $('#file-replace').onchange = async e => {
   try {
     const buf = await f.arrayBuffer();
     s.pages = await pageCount(buf);
-    await DB.putSong(s, buf); render(); toast('PDF ersetzt');
+    await DB.putSong(s, buf);
+    if (S.ann.has(s.id)) { await DB.del('annots', s.id); S.ann.delete(s.id); }
+    render(); toast('PDF ersetzt');
   } catch (err) { console.error(err); toast('PDF konnte nicht gelesen werden'); }
 };
 // Dateien per Drag & Drop (iPad mit Split View, Desktop)
@@ -1034,7 +1340,9 @@ document.addEventListener('drop', e => { e.preventDefault(); if (e.dataTransfer.
 
 (async function init() {
   try {
-    [S.songs, S.setlists] = await Promise.all([DB.all('songs'), DB.all('setlists')]);
+    let annIds;
+    [S.songs, S.setlists, annIds] = await Promise.all([DB.all('songs'), DB.all('setlists'), DB.keys('annots')]);
+    S.ann = new Set(annIds);
   } catch (e) {
     console.error(e);
     toast('Speicher nicht verfügbar – Daten werden nicht gesichert');

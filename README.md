@@ -12,7 +12,9 @@ Ab dann startet sie wie eine normale App im Vollbild und funktioniert **offline*
 Wichtig: immer über das Home-Bildschirm-Symbol öffnen, nicht über Safari. Dort liegen deine Daten.
 
 ## Bedienung
-- **Lieder**: „+ PDFs“ → mehrere PDFs auf einmal oder eine Zip-Datei voller PDFs wählen. Dateiname = Liedname. Antippen zum Umbenennen, Ersetzen, Löschen.
+- **Lieder**: „+ PDFs“ → mehrere PDFs auf einmal oder eine Zip-Datei voller PDFs wählen. Dateiname = Liedname. Antippen öffnet das Lied in der einfachen Ansicht, ⋯ für Instrument, Umbenennen, Ersetzen, Löschen.
+- **Instrumente**: Bass/Gitarre/Gesang pro Lied. Steht das Instrument im Dateinamen (z. B. „Allergie - Bass.pdf“), wird es automatisch gesetzt; ist oben ein Instrument-Filter aktiv, bekommen neue PDFs dieses Instrument.
+- **Zeichnen**: In der Lied-Ansicht „✎ Zeichnen“, im Auftritt Mitte tippen → ✎. Der Apple Pencil zeichnet, Finger zoomen/verschieben nur. Stifte, Marker, Radierer, Rückgängig, Seite leeren. Antippen zum Umbenennen, Ersetzen, Löschen.
 - **Setlists**: „+ Neu“ → leer (Lieder antippen), **aus Foto/Screenshot** (z. B. deiner Excel-Liste) oder aus eingefügtem Text. Erkannte Zeilen werden mit deinen Liednamen abgeglichen, du prüfst kurz und speicherst. Sortieren durch Ziehen an ≡.
 - **Auftritt**: ▶ Start. Rechts tippen = weiter, links = zurück (blättert erst durch alle Seiten eines Lieds, dann zum nächsten). Mitte = Menü (Beenden, Nachtmodus, Sprung zu einem Lied).
 - Bluetooth-Pedale (die Pfeiltasten/Bild-auf/ab senden) funktionieren auch.
@@ -28,4 +30,4 @@ In GoodNotes Seiten auswählen → Teilen → Exportieren als PDF → in Dateien
 Im GitHub-Repo „Add file → Upload files“ → wieder den gesamten Inhalt des Ordners hineinziehen (überschreibt die alten Dateien) → Commit. Auf dem iPad die App einmal schließen und neu öffnen, ggf. zweimal. Deine Lieder und Setlists bleiben erhalten.
 
 ## Updates der App
-Nach Änderungen an den Dateien in `sw.js` die Zeile `VERSION = 'setlist-v4'` hochzählen, sonst zeigt das iPad noch die alte Version aus dem Cache.
+Nach Änderungen an den Dateien in `sw.js` die Zeile `VERSION = 'setlist-v5'` hochzählen, sonst zeigt das iPad noch die alte Version aus dem Cache.

@@ -1,5 +1,5 @@
 // Offline-Cache für die App-Dateien. Bei Änderungen an der App VERSION erhöhen.
-const VERSION = 'setlist-v4';
+const VERSION = 'setlist-v5';
 const FILES = [
   './',
   './index.html',
